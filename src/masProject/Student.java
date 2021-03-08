@@ -41,14 +41,15 @@ public class Student extends Agent{
 		
 			switch (choice) {
 			case "Company":
-				System.out.println("Student Chose to do Thesis with  a company");
+				System.out.println("Student chose to do Thesis with  a company");
 				//System.out.println(getAID().getName());
 				addBehaviour(new choiceDesertation());
 				addBehaviour(new RecievedMsgThCom());
 				break;
 				
 			case "Proposals":
-				System.out.println("Chose from Proposals");
+				System.out.println("Student chose from proposals");
+				addBehaviour(new  StudentProposal());            
 				break;
 				
 			case "StudentChoice":
@@ -87,7 +88,7 @@ public class Student extends Agent{
 						// Prepare a reply from the proposals 
 						mtStudentCommt = MessageTemplate.and(MessageTemplate.MatchConversationId("TChoice-Company"), 
 								MessageTemplate.MatchInReplyTo(pr.getReplyWith()));
-						step =1;
+						step =2;
 						//System.out.println(pr);
 						break;
 				
@@ -124,36 +125,40 @@ public class Student extends Agent{
 		
 	}
 	
-	public class StudentProposal extends CyclicBehaviour{
-		
+	public class StudentProposal extends Behaviour{
+		int num =0; 
 		public void action() {
 			 selectProposal = true;
-			if(selectProposal) {
-				
-				ACLMessage pr = new ACLMessage(ACLMessage.INFORM); 
+			 
+			 switch (num) {
+			case 0:
+				ACLMessage pr = new ACLMessage(ACLMessage.QUERY_REF); 
 				pr.addReceiver(new AID( "supervisor",AID.ISLOCALNAME));
 				pr.setConversationId("TChoice-Proposal");
 				pr.setReplyWith("Inform "+ System.currentTimeMillis());
-				pr.setContent("PROPOSAL THESIS");
+				pr.setContent("PROPOSED THESIS, SEND MORE INFO");
 				send(pr);
 				
 				// Prepare a reply from the proposals 
 				mtStudentSupp = MessageTemplate.and(MessageTemplate.MatchConversationId("TChoice-Proposal"), 
 						MessageTemplate.MatchInReplyTo(pr.getReplyWith()));
-				
-				
-			}else {
-				
-				block();
+				num=1;
+				break; 
+			case 2:
+				break;
 				
 			}
-			
 		
+		}
+
+		@Override
+		public boolean done() {
+			// TODO Auto-generated method stub
+			return num==2;
 		}
 	}
 	
-
-			
+	
 	}
 	
 	

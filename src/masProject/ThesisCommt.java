@@ -26,17 +26,7 @@ public class ThesisCommt extends Agent{
           addBehaviour(new  recieveFromStudent());
           addBehaviour(new RecieveMessageFromSupC());
           
-          
-         /* addBehaviour(new TickerBehaviour(this,2000) {
-			
-			@Override
-			protected void onTick() {
-				// TODO Auto-generated method stub
-				myAgent.addBehaviour(new  recieveFromStudent());
-				myAgent.addBehaviour(new RecieveMessageFromSupC());
-				
-			}
-		});*/
+     
           
     }
 		  
@@ -108,7 +98,6 @@ public class ThesisCommt extends Agent{
 			}else {
 				block();
 			}
-			
 			
 		}
 		

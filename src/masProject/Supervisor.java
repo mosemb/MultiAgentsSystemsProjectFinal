@@ -10,9 +10,16 @@ public class Supervisor  extends Agent{
 	public void setup() {
 		
 		addBehaviour(new RequestsFromThesisCom());
+		addBehaviour(new MessageFromStudent());
 		
 		
 	}
+	
+	// Put agent clean-up operations here
+	protected void takeDown() {
+				// Printout a dismissal message
+				System.out.println("Supervisor-agent "+getAID().getName()+" terminating.");
+			}
 	
 	public class RequestsFromThesisCom extends CyclicBehaviour{
 
@@ -40,6 +47,41 @@ public class Supervisor  extends Agent{
 				
 				block();
 			}
+			
+			
+		}
+		
+	}
+	
+	public class MessageFromStudent extends CyclicBehaviour{
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			MessageTemplate mTemplate  = MessageTemplate.MatchConversationId("TChoice-Proposal"); 
+					//MatchPerformative(ACLMessage.INFORM);
+			ACLMessage AclMessage  = receive(mTemplate); 
+			
+			if(AclMessage!=null) {
+				
+				String contentString = AclMessage.getContent();
+				System.out.println("Message from Student to Supervisor ... ");
+				System.out.println(contentString);
+			} else {
+				
+				block();
+			}
+			
+		}
+		
+		
+	}
+	
+	public class SendMoreInfoOnThePro extends CyclicBehaviour{
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
 			
 			
 		}
