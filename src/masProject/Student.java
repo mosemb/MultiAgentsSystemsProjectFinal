@@ -19,25 +19,30 @@ public class Student extends Agent{
 	private static final long serialVersionUID = 1L;
 	boolean enrollDesertation; 
 	boolean examinProposals; 
-	MessageTemplate mtStudentCommt;
+	boolean selectProposal;
+	MessageTemplate mtStudentCommt, mtStudentSupp;
+	
 	ThesisCommt thesisCommt;
 	Object [] args;
 	
 	public void setup() { 
-		
+		System.out.println("Agent "+getLocalName()+" is ready. ");
 		args = getArguments(); 
 		String choice = (String) args[0];
-		//String [] choices  = {"Company", "Proposals", "StudentChoice"};
+		String [] choices  = {"Company", "Proposals", "StudentChoice"};
 		
-		//for(String x:choices) {
+		for(String x:choices) { 
 			
+			if(x.equals(choice)) {
+				choice = x;
+			}
 			
-				
-				
+		}
+		
 			switch (choice) {
 			case "Company":
-				System.out.println("Chose a company");
-				System.out.println(getAID().getName());
+				System.out.println("Student Chose to do Thesis with  a company");
+				//System.out.println(getAID().getName());
 				addBehaviour(new choiceDesertation());
 				addBehaviour(new RecievedMsgThCom());
 				break;
@@ -53,11 +58,9 @@ public class Student extends Agent{
 
 			default:
 				System.out.println("Not a valid Choice");
-				break;
+				break; 
 			}	
 
-			
-		
 	}
 	
 	// Put agent clean-up operations here
@@ -67,61 +70,27 @@ public class Student extends Agent{
 		}
 	
 	public class choiceDesertation extends Behaviour {
-		
-		/**
-		 * 
-		 */
-
 		int step = 0; 
 		public void action() {
 			
 					
 					switch (step) {
 					case 0:
-						System.out.println("Chose a company");
+						//System.out.println("Chose a company");
 						ACLMessage pr = new ACLMessage(ACLMessage.PROPOSE); 
-						pr.addReceiver(new AID( "commt",AID.ISLOCALNAME));
+						pr.addReceiver(new AID( "ThesisCommittee",AID.ISLOCALNAME));
 						pr.setConversationId("TChoice-Company");
 						pr.setReplyWith("Proposal "+ System.currentTimeMillis());
-						pr.setContent("Company Thesis");
+						pr.setContent("COMPANY THESIS");
 						send(pr);
 						
 						// Prepare a reply from the proposals 
 						mtStudentCommt = MessageTemplate.and(MessageTemplate.MatchConversationId("TChoice-Company"), 
 								MessageTemplate.MatchInReplyTo(pr.getReplyWith()));
 						step =1;
-						System.out.println(pr);
+						//System.out.println(pr);
 						break;
-					//case 1:
-						 /*ACLMessage reply = myAgent.receive(mt);
-						 //System.out.println("The MT"+mt);
-						 //System.out.println("The Reply"+reply);
-						 
-						 
-						 //ACLMessage reply = myAgent.receive(mt);
-							
-							if(reply!=null) {
-								String cont = reply.getContent();
-								
-								if(reply.getPerformative()==ACLMessage.ACCEPT_PROPOSAL) {
-									System.out.println("Accepted");
-									System.out.println(cont); 
-									
-								}else if (reply.getPerformative()==ACLMessage.REJECT_PROPOSAL) {
-									System.out.println("Rejected");
-									System.out.println(cont);
-								}
-								
-								 
-							}else {
-								block();
-							}*
-							
-							//System.out.println(mt);
-							//System.out.println("Test");
-							step = 2;
-							//System.out.println("Step no:"+step);
-							break;*/
+				
 						}
 							
 			}
@@ -131,20 +100,19 @@ public class Student extends Agent{
 			// TODO Auto-generated method stub
 			return step==2;
 		} 
-			
-		}
+			}
 	
 	public class RecievedMsgThCom extends CyclicBehaviour{
 		@Override
 		public void action() {
 			// TODO Auto-generated method stub
-			//mt = MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL);
 			ACLMessage msg = myAgent.receive(mtStudentCommt);
 			
 			if(msg!=null) {
 				
 				if(msg.getConversationId().equals("TChoice-Company")) {
 					String content = msg.getContent();
+					System.out.println("Reply from Thesis Commitee to Student ...");
 					System.out.println(content);
 				}
 				
@@ -155,6 +123,36 @@ public class Student extends Agent{
 		}
 		
 	}
+	
+	public class StudentProposal extends CyclicBehaviour{
+		
+		public void action() {
+			 selectProposal = true;
+			if(selectProposal) {
+				
+				ACLMessage pr = new ACLMessage(ACLMessage.INFORM); 
+				pr.addReceiver(new AID( "supervisor",AID.ISLOCALNAME));
+				pr.setConversationId("TChoice-Proposal");
+				pr.setReplyWith("Inform "+ System.currentTimeMillis());
+				pr.setContent("PROPOSAL THESIS");
+				send(pr);
+				
+				// Prepare a reply from the proposals 
+				mtStudentSupp = MessageTemplate.and(MessageTemplate.MatchConversationId("TChoice-Proposal"), 
+						MessageTemplate.MatchInReplyTo(pr.getReplyWith()));
+				
+				
+			}else {
+				
+				block();
+				
+			}
+			
+		
+		}
+	}
+	
+
 			
 	}
 	
