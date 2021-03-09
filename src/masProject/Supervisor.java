@@ -62,11 +62,19 @@ public class Supervisor  extends Agent{
 					//MatchPerformative(ACLMessage.INFORM);
 			ACLMessage AclMessage  = receive(mTemplate); 
 			
+			
 			if(AclMessage!=null) {
 				
 				String contentString = AclMessage.getContent();
+				System.out.println();
 				System.out.println("Message from Student to Supervisor ... ");
 				System.out.println(contentString);
+				
+				ACLMessage reply = AclMessage.createReply();
+				reply.setPerformative(ACLMessage.INFORM);
+				reply.setContent("THESIS INFORMATION");
+				myAgent.send(reply);
+				
 			} else {
 				
 				block();

@@ -49,7 +49,8 @@ public class Student extends Agent{
 				
 			case "Proposals":
 				System.out.println("Student chose from proposals");
-				addBehaviour(new  StudentProposal());            
+				addBehaviour(new  StudentProposal());  
+				addBehaviour(new ThesisInfoFromSup());
 				break;
 				
 			case "StudentChoice":
@@ -156,6 +157,29 @@ public class Student extends Agent{
 			// TODO Auto-generated method stub
 			return num==2;
 		}
+	}
+	
+	public class ThesisInfoFromSup extends CyclicBehaviour{
+
+		public void action() {
+			// TODO Auto-generated method stub
+			ACLMessage msg = myAgent.receive(mtStudentSupp);
+			
+			if(msg!=null) {
+				
+				String content = msg.getContent();
+				System.out.println();
+				System.out.println("Reply from Supervisor to Student ...");
+				System.out.println(content);
+				
+				
+			}else {
+				block();
+			}
+			
+		}
+		
+		
 	}
 	
 	
