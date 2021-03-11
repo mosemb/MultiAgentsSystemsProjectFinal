@@ -145,14 +145,11 @@ public class Supervisor  extends Agent{
 					MessageTemplate mt = MessageTemplate.and(MessageTemplate.MatchConversationId("numberOfThesis"), 
 							MessageTemplate.MatchInReplyTo(pr.getReplyWith()));
 					
-			
 					}
-		
 		}
 		
-		
-		
 
+	
 	public class StudentToSupervisor extends CyclicBehaviour{
 
 		@Override
@@ -169,25 +166,18 @@ public class Supervisor  extends Agent{
 				System.out.println(content);
 	            
 				String selected = "THESIS_SELECTED";
-				 //System.out.println(msg.toString());
+				
 				 if(content.equals(selected) ) {
 					 Random random = new Random(); 
 					 int randomNo = random.nextInt((thesisProposal.size()-1)-0)+0;
 					 System.out.println(" THE SELECTED THESIS IS "+thesisProposal.get(randomNo));
-					 //System.out.println("THESIS REMOVED FROM SELECTION "+thesisProposal.remove(randomNo)); 
 					 
 				 }
 					
-			
-				//System.out.print(conf);
-				
-
 			}else {
 				
 				block();
 			}
-			
-			
 			
 		}
 		
@@ -212,6 +202,4 @@ public class Supervisor  extends Agent{
 		
 	}
 	
-	
-
 }
