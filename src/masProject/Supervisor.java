@@ -27,7 +27,7 @@ public class Supervisor  extends Agent{
 	public void setup() {
 		
 		Object [] args = getArguments();
-		System.out.println("The arguments array has "+args.length);
+		//System.out.println("The arguments array has "+args.length);
 		
 		for(Object i: args) {
 			//System.out.println(" The value of i is"+ i);
@@ -44,8 +44,9 @@ public class Supervisor  extends Agent{
 		addBehaviour(new RequestsFromThesisCom());
 		addBehaviour(new MessageFromStudent());
 		addBehaviour(new StudentToSupervisor());
-		addBehaviour(new NoOfProposals());
-		//addBehaviour(new RecieveStudentThesisChoice());
+	    addBehaviour(new RecieveStudentThesisChoice());
+		addBehaviour(new MessageToComm());
+		//addBehaviour(new RecieveMessageFromStu());
 		
 		
 	}
@@ -164,13 +165,17 @@ public class Supervisor  extends Agent{
 				System.out.println();
 				System.out.println("Reply from Student to Supervisor about Thesis decision ... ");
 				System.out.println(content);
+				System.out.println();
 	            
 				String selected = "THESIS_SELECTED";
 				
 				 if(content.equals(selected) ) {
 					 Random random = new Random(); 
 					 int randomNo = random.nextInt((thesisProposal.size()-1)-0)+0;
-					 System.out.println(" THE SELECTED THESIS IS "+thesisProposal.get(randomNo));
+					 System.out.println(" THE SELECTED THESIS IS ..."+thesisProposal.get(randomNo));
+					 System.out.println(" THESIS NAME TO REMOVE FROM LIST ..."+thesisProposal.remove(randomNo));
+					 System.out.println(" REMAINING THESIS PROPOSALS IN LIST ..."+ thesisProposal);
+					 
 					 
 				 }
 					
@@ -188,16 +193,117 @@ public class Supervisor  extends Agent{
 		@Override
 		public void action() {
 			// TODO Auto-generated method stub
-			MessageTemplate mTemplate = MessageTemplate.MatchConversationId("chosenProposalNo");
-			ACLMessage msg = receive(mTemplate); 
+			MessageTemplate mTemplate  = MessageTemplate.MatchConversationId("Possible-Proposal"); 
+			//MatchPerformative(ACLMessage.INFORM);
+	        ACLMessage msg  = receive(mTemplate); 
+	        
+	       
+	      
 			
 			if(msg!=null) {
 				String content = msg.getContent(); 
-				System.out.println("Chosen Thesis is "+content); 
+				System.out.println("Student message to Supervisor :"+content); 
+				
+				 Random rand = new Random();
+			     boolean selected = rand.nextBoolean();
+			     
+			     if(selected == true ) {
+			    	 
+			    	    ACLMessage reply = msg.createReply();
+						reply.setPerformative(ACLMessage.INFORM);
+						reply.setContent("THESIS HAS BEEN SELECTED, AM YOUR SUPERVISOR");
+						myAgent.send(reply);
+						
+						ACLMessage tostudent = new ACLMessage(ACLMessage.INFORM);
+						tostudent.addReceiver(new AID("student", AID.ISLOCALNAME));
+						// Might make the name dynamic by changing the String instance variable.
+						//toSupervisor.setConversationId("REVISE THESIS");
+						tostudent.setConversationId("Assign_Thesis");
+						tostudent.setReplyWith("Assign Thesis "+ System.currentTimeMillis());
+						tostudent.setContent("THESIS ASSIGNED, Start Date: 4/5/21 - End Date 10/8/21, THESIS STATUS - ON GOING");
+						send(tostudent);
+						
+						//System.out.println(toCommt);
+						
+					
+						//System.out.println(toCommt);
+						ACLMessage toCommt = new ACLMessage(ACLMessage.CONFIRM);
+						toCommt.addReceiver(new AID("ThesisCommittee", AID.ISLOCALNAME));                       
+						toCommt.setConversationId("Assign_Thesis_TC");
+						toCommt.setReplyWith("Assign_Thesis_TC"+ System.currentTimeMillis());
+						toCommt.setContent("THESIS ASSIGNED, TO STUDENT");
+						send(toCommt);
+						
+						MessageTemplate	mt = MessageTemplate.and(MessageTemplate.MatchConversationId("Assign_Thesis_TC"), 
+								MessageTemplate.MatchInReplyTo(toCommt.getReplyWith()));
+						
+						MessageTemplate	mtAssingThesis = MessageTemplate.and(MessageTemplate.MatchConversationId("Assign_Thesis"), 
+								MessageTemplate.MatchInReplyTo(tostudent.getReplyWith()));
+						
+						
+			    	 
+			     }else {
+			    	    ACLMessage reply = msg.createReply();
+			    	    reply.setPerformative(ACLMessage.INFORM);
+						reply.setContent("THESIS HAS BEEN REJECTED BEGIN PROCESS AGAIN");
+						myAgent.send(reply);
+			    	 
+			     }
 				
 			}else {
+				//System.out.println(msg);
 				block();
 			}
+		}
+		
+	}
+	
+	public class MessageToComm extends OneShotBehaviour {
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			ACLMessage toCommt = new ACLMessage(ACLMessage.INFORM);
+			toCommt.addReceiver(new AID("ThesisCommittee", AID.ISLOCALNAME));
+			toCommt.setConversationId("THESIS_ASSIGNED_ST");
+			toCommt.setReplyWith("THESIS Assigned"+ System.currentTimeMillis());
+			toCommt.setContent("THESIS ASSIGNED, TO STUDENT");
+			send(toCommt);
+			
+			MessageTemplate	mtAssingThesis = MessageTemplate.and(MessageTemplate.MatchConversationId("THESIS_ASSIGNED_ST"), 
+					MessageTemplate.MatchInReplyTo(toCommt.getReplyWith()));
+			
+		}
+		
+	}
+	
+	public class RecieveMessageFromStu extends CyclicBehaviour{
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			MessageTemplate mTemplate  = MessageTemplate.MatchConversationId("Confirm-Thesis"); 
+			//MatchPerformative(ACLMessage.INFORM);
+	        ACLMessage msg  = receive(mTemplate); 
+	        
+	        if(msg!=null) {
+	        	String content = msg.getContent();
+	        	System.out.println("Message from Student to Supervisor :"+content);
+	        	
+	        	ACLMessage toCommt = new ACLMessage(ACLMessage.CONFIRM);
+				toCommt.addReceiver(new AID("ThesisCommittee", AID.ISLOCALNAME));                       
+				toCommt.setConversationId("Assign_Thesis_TC");
+				toCommt.setReplyWith("Assign_Thesis_TC"+ System.currentTimeMillis());
+				toCommt.setContent("THESIS ASSIGNED, TO STUDENT");
+				send(toCommt);
+				
+				MessageTemplate	mt = MessageTemplate.and(MessageTemplate.MatchConversationId("Assign_Thesis_TC"), 
+						MessageTemplate.MatchInReplyTo(toCommt.getReplyWith()));
+				
+	        }else {
+	        	block();
+	        }
+			
 		}
 		
 	}

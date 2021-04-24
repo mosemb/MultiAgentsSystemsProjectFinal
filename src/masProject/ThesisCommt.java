@@ -1,6 +1,8 @@
 package masProject;
 
 
+import java.util.Random;
+
 import jade.core.AID;
 //import jade.core.AID;
 import jade.core.Agent;
@@ -21,13 +23,13 @@ public class ThesisCommt extends Agent{
 	protected void setup() {
 		
 		
-          System.out.println("Agent "+getLocalName()+" is ready. ");
+         // System.out.println("Agent "+getLocalName()+" is ready. ");
           
           addBehaviour(new  recieveFromStudent());
           addBehaviour(new RecieveMessageFromSupC());
+          addBehaviour(new MsgSupStuChoice());
           
-     
-          
+               
     }
 		  
 	
@@ -38,7 +40,8 @@ public class ThesisCommt extends Agent{
 				
 				if (msg != null) {
 					String content = msg.getContent(); 
-					boolean acceptable = true; 
+					Random rand = new Random();
+					boolean acceptable = rand.nextBoolean(); // Pick either a boolean value
 					System.out.println("Message from Student to Thesis Commitee ... ");
 					ACLMessage reply = msg.createReply();
 					System.out.println(content);
@@ -52,8 +55,6 @@ public class ThesisCommt extends Agent{
 					
 						ACLMessage toSupervisor = new ACLMessage(ACLMessage.REQUEST);
 						toSupervisor.addReceiver(new AID("supervisor", AID.ISLOCALNAME));
-						// Might make the name dynamic by changing the String instance variable.
-						//toSupervisor.setConversationId("REVISE THESIS");
 						toSupervisor.setConversationId("TChoice-Company2");
 						toSupervisor.setReplyWith("Request ThCom1 "+ System.currentTimeMillis());
 						toSupervisor.setContent("REVIEW THESIS");
@@ -68,8 +69,9 @@ public class ThesisCommt extends Agent{
 						
 					}else {
 						reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
-						reply.setContent("PROPOSAL REJECTED");
-			
+						reply.setContent("PROPOSAL REJECTED, START AGAIN");
+						//System.out.println("Go back to commandline to choose either Company, Proposal or StudentChoice");
+			            
 					}
 					myAgent.send(reply);
 					
@@ -101,5 +103,29 @@ public class ThesisCommt extends Agent{
 			
 		}
 		
+	}
+	
+	public class MsgSupStuChoice extends CyclicBehaviour {
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub 
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CONFIRM);
+			ACLMessage msg = receive(mt);
+			
+
+			if (msg != null) {
+
+				if (msg.getConversationId().equals("Confirm-Thesis")) {
+					String content = msg.getContent();
+					System.out.println("Reply from Student to Thesis Comm  ...");
+					System.out.println(content);
+				}
+
+			} else {
+				block();
+			}
+
+		}
+
 	}
 }
