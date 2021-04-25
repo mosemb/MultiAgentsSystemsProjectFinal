@@ -22,12 +22,11 @@ public class ThesisCommt extends Agent{
 
 	protected void setup() {
 		
-		
-         // System.out.println("Agent "+getLocalName()+" is ready. ");
-          
+	
           addBehaviour(new  recieveFromStudent());
           addBehaviour(new RecieveMessageFromSupC());
-          addBehaviour(new MsgSupStuChoice());
+          
+        
           
                
     }
@@ -105,27 +104,7 @@ public class ThesisCommt extends Agent{
 		
 	}
 	
-	public class MsgSupStuChoice extends CyclicBehaviour {
-		@Override
-		public void action() {
-			// TODO Auto-generated method stub 
-			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CONFIRM);
-			ACLMessage msg = receive(mt);
-			
+	
+	
 
-			if (msg != null) {
-
-				if (msg.getConversationId().equals("Confirm-Thesis")) {
-					String content = msg.getContent();
-					System.out.println("Reply from Student to Thesis Comm  ...");
-					System.out.println(content);
-				}
-
-			} else {
-				block();
-			}
-
-		}
-
-	}
 }

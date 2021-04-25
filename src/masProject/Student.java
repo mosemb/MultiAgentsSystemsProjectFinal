@@ -77,7 +77,7 @@ public class Student extends Agent {
 			addBehaviour(new InterestedProposal());
 			addBehaviour(new RecievedMsgSupStuChoice());
 			addBehaviour(new MsgSupStuChoice()); //ConfirStudentChoice
-			addBehaviour(new ConfirStudentChoice());
+			//addBehaviour(new ConfirStudentChoice());
 			
 			break;
 
@@ -339,38 +339,5 @@ public class Student extends Agent {
 		}
 
 	}
-	
-	public class ConfirStudentChoice extends Behaviour {
-
-		@Override
-		public void action() {
-			// TODO Auto-generated method stub
-			int step = 0; 
-			switch (step) {
-			case 0:
-				ACLMessage pr = new ACLMessage(ACLMessage.CONFIRM);
-				pr.addReceiver(new AID("ThesisCommittee", AID.ISLOCALNAME));
-				pr.setConversationId("Confirm-Thesis");
-				pr.setReplyWith("Confirm_ref " + System.currentTimeMillis());
-				pr.setContent("THESIS CONFIRMATION RECIEVED");
-				send(pr);
-				  
-					step = 2;
-				MessageTemplate mtStudentSupp = MessageTemplate.and(MessageTemplate.MatchConversationId("Confirm-Thesis"),
-							MessageTemplate.MatchInReplyTo(pr.getReplyWith()));
-					
-				break;
-
-			}
-		}
-
-		@Override
-		public boolean done() {
-			// TODO Auto-generated method stub
-			return true;
-		}
-
-	}
-	
 	
 }

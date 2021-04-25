@@ -45,8 +45,7 @@ public class Supervisor  extends Agent{
 		addBehaviour(new MessageFromStudent());
 		addBehaviour(new StudentToSupervisor());
 	    addBehaviour(new RecieveStudentThesisChoice());
-		addBehaviour(new MessageToComm());
-		//addBehaviour(new RecieveMessageFromStu());
+		
 		
 		
 	}
@@ -194,12 +193,8 @@ public class Supervisor  extends Agent{
 		public void action() {
 			// TODO Auto-generated method stub
 			MessageTemplate mTemplate  = MessageTemplate.MatchConversationId("Possible-Proposal"); 
-			//MatchPerformative(ACLMessage.INFORM);
 	        ACLMessage msg  = receive(mTemplate); 
 	        
-	       
-	      
-			
 			if(msg!=null) {
 				String content = msg.getContent(); 
 				System.out.println("Student message to Supervisor :"+content); 
@@ -223,10 +218,7 @@ public class Supervisor  extends Agent{
 						tostudent.setContent("THESIS ASSIGNED, Start Date: 4/5/21 - End Date 10/8/21, THESIS STATUS - ON GOING");
 						send(tostudent);
 						
-						//System.out.println(toCommt);
 						
-					
-						//System.out.println(toCommt);
 						ACLMessage toCommt = new ACLMessage(ACLMessage.CONFIRM);
 						toCommt.addReceiver(new AID("ThesisCommittee", AID.ISLOCALNAME));                       
 						toCommt.setConversationId("Assign_Thesis_TC");
@@ -258,54 +250,5 @@ public class Supervisor  extends Agent{
 		
 	}
 	
-	public class MessageToComm extends OneShotBehaviour {
 
-		@Override
-		public void action() {
-			// TODO Auto-generated method stub
-			ACLMessage toCommt = new ACLMessage(ACLMessage.INFORM);
-			toCommt.addReceiver(new AID("ThesisCommittee", AID.ISLOCALNAME));
-			toCommt.setConversationId("THESIS_ASSIGNED_ST");
-			toCommt.setReplyWith("THESIS Assigned"+ System.currentTimeMillis());
-			toCommt.setContent("THESIS ASSIGNED, TO STUDENT");
-			send(toCommt);
-			
-			MessageTemplate	mtAssingThesis = MessageTemplate.and(MessageTemplate.MatchConversationId("THESIS_ASSIGNED_ST"), 
-					MessageTemplate.MatchInReplyTo(toCommt.getReplyWith()));
-			
-		}
-		
-	}
-	
-	public class RecieveMessageFromStu extends CyclicBehaviour{
-
-		@Override
-		public void action() {
-			// TODO Auto-generated method stub
-			MessageTemplate mTemplate  = MessageTemplate.MatchConversationId("Confirm-Thesis"); 
-			//MatchPerformative(ACLMessage.INFORM);
-	        ACLMessage msg  = receive(mTemplate); 
-	        
-	        if(msg!=null) {
-	        	String content = msg.getContent();
-	        	System.out.println("Message from Student to Supervisor :"+content);
-	        	
-	        	ACLMessage toCommt = new ACLMessage(ACLMessage.CONFIRM);
-				toCommt.addReceiver(new AID("ThesisCommittee", AID.ISLOCALNAME));                       
-				toCommt.setConversationId("Assign_Thesis_TC");
-				toCommt.setReplyWith("Assign_Thesis_TC"+ System.currentTimeMillis());
-				toCommt.setContent("THESIS ASSIGNED, TO STUDENT");
-				send(toCommt);
-				
-				MessageTemplate	mt = MessageTemplate.and(MessageTemplate.MatchConversationId("Assign_Thesis_TC"), 
-						MessageTemplate.MatchInReplyTo(toCommt.getReplyWith()));
-				
-	        }else {
-	        	block();
-	        }
-			
-		}
-		
-	}
-	
 }
