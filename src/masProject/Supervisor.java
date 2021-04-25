@@ -45,6 +45,8 @@ public class Supervisor  extends Agent{
 		addBehaviour(new MessageFromStudent());
 		addBehaviour(new StudentToSupervisor());
 	    addBehaviour(new RecieveStudentThesisChoice());
+	    addBehaviour(new RecieveFromThCom());
+	    
 		
 		
 		
@@ -236,7 +238,7 @@ public class Supervisor  extends Agent{
 			    	 
 			     }else {
 			    	    ACLMessage reply = msg.createReply();
-			    	    reply.setPerformative(ACLMessage.INFORM);
+			    	    reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
 						reply.setContent("THESIS HAS BEEN REJECTED BEGIN PROCESS AGAIN");
 						myAgent.send(reply);
 			    	 
@@ -246,6 +248,29 @@ public class Supervisor  extends Agent{
 				//System.out.println(msg);
 				block();
 			}
+		}
+		
+	}
+	
+	public class RecieveFromThCom extends CyclicBehaviour{
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			//MessageTemplate th = MessageTemplate.MatchPerformative(ACLMessage.INFORM_REF); 
+			MessageTemplate th = MessageTemplate.MatchConversationId("DReviewer");
+			ACLMessage msg = receive(th);
+			
+			if(msg!=null) {
+				String content = msg.getContent();
+				System.out.println();
+				System.out.println("Message from Thesis Committe to Supervisor concerning Reviewer name ...");
+				System.out.println(content.toUpperCase());
+				
+				//System.out.println(content);
+				
+			}
+			
 		}
 		
 	}

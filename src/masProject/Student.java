@@ -61,6 +61,7 @@ public class Student extends Agent {
 			System.out.println("Student chose from proposals");
 			addBehaviour(new StudentProposal());
 			addBehaviour(new ThesisInfoFromSup());
+			
 			// addBehaviour(new RecieveNumOfThesis());
 			// addBehaviour(new InterestedProposal());
 
@@ -77,6 +78,7 @@ public class Student extends Agent {
 			addBehaviour(new InterestedProposal());
 			addBehaviour(new RecievedMsgSupStuChoice());
 			addBehaviour(new MsgSupStuChoice()); //ConfirStudentChoice
+			addBehaviour(new ThRecieveFrThCom());
 			//addBehaviour(new ConfirStudentChoice());
 			
 			break;
@@ -328,6 +330,7 @@ public class Student extends Agent {
 
 				if (msg.getConversationId().equals("Assign_Thesis")) {
 					msgFrSup = msg.getContent();
+					System.out.println();
 					System.out.println("Reply from Supervisor to Student Wayforward ...");
 					System.out.println(msgFrSup );
 				}
@@ -339,5 +342,34 @@ public class Student extends Agent {
 		}
 
 	}
+	
+	public class ThRecieveFrThCom extends CyclicBehaviour {
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			MessageTemplate mt = MessageTemplate.MatchConversationId("ThReviewer");
+			ACLMessage msg = receive(mt); 
+			
+			if (msg!=null) {
+				String content = msg.getContent();
+				System.out.println();
+				System.out.println("Thesis Reviewer name from Thesis Committe to Student... ");
+				System.out.println(content.toUpperCase());
+				
+				ACLMessage progress = new ACLMessage(ACLMessage.SUBSCRIBE);
+				progress.addReceiver(new AID("reviewer", AID.ISLOCALNAME));
+				progress.setReplyWith("Inform_progress " + System.currentTimeMillis());
+				progress.setConversationId("ThesisProgress");
+				progress.setContent("THESIS PROGRESS ON COURSE");
+				send(progress);
+				
+			}
+			
+		}
+		
+	}
+	
+	
 	
 }
