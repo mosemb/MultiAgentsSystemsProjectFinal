@@ -24,8 +24,6 @@ public class Student extends Agent {
 	boolean interested = false;
 	int randomNo;
 	private static final long serialVersionUID = 1L;
-	boolean enrollDesertation;
-	boolean examinProposals;
 	boolean selectProposal;
 	MessageTemplate mtStudentCommt, mtStudentSupp;
 	Supervisor spSupervisor;
@@ -35,11 +33,13 @@ public class Student extends Agent {
 	Object[] args;
 
 	public void setup() {
-		// System.out.println("Agent "+getLocalName()+" is ready. ");
+		
+		// Get commandline arguments
 		args = getArguments();
 		String choice = (String) args[0];
 		String[] choices = { "Company", "Proposals", "StudentChoice" };
 
+		// Available choices
 		for (String x : choices) {
 
 			if (x.equals(choice)) {
@@ -47,11 +47,13 @@ public class Student extends Agent {
 			}
 
 		}
-
+        /* From available choices entered at commandline run behaviors based either 
+		 Company, Proposals, StudentChoice
+		 
+		 */
 		switch (choice) {
 		case "Company":
-			System.out.println("Student chose to do Thesis with  a company");
-			// System.out.println(getAID().getName());
+			System.out.println("Student chose to do Thesis with  a company"); 
 			addBehaviour(new choiceDesertation());
 			addBehaviour(new RecievedMsgThCom());
 			addBehaviour(new RecieveMsgFromSupCom());
@@ -66,26 +68,17 @@ public class Student extends Agent {
 			addBehaviour(new ThesisInfoFromSup());
 			addBehaviour(new RecieveFromSupProposal());
 			
-			
-			
-			// addBehaviour(new RecieveNumOfThesis());
-			// addBehaviour(new InterestedProposal());
-
 			break;
 
 		case "StudentChoice":
 			System.out.println("Its a Student Choice");
-			// addBehavior(new test());
-			// InnerClass otherInnerVar2 = new OuterClass().new InnerClass();
-			//InterestedProposal outerClassObj = new InterestedProposal();
-			//InterestedProposal.Interested innerClassObj = outerClassObj.new Interested();
 		    String str = "THESIS ASSIGNED, Start Date: 4/5/21 - End Date 10/8/21, THESIS STATUS - ON GOING";
 		    
 			addBehaviour(new InterestedProposal());
 			addBehaviour(new RecievedMsgSupStuChoice());
-			addBehaviour(new MsgSupStuChoice()); //ConfirStudentChoice
+			addBehaviour(new MsgSupStuChoice()); 
 			addBehaviour(new ThRecieveFrThCom());
-			//addBehaviour(new ConfirStudentChoice());
+		
 			
 			break;
 
@@ -188,13 +181,17 @@ public class Student extends Agent {
 	}
 
 	public class RecievedMsgThCom extends CyclicBehaviour {
+		/*
+		 * Recieve message from Thesis committee to Student ... 
+		 * 
+		 * */
 		@Override
 		public void action() {
-			// TODO Auto-generated method stub
+			// Recieve message 
 			ACLMessage msg = myAgent.receive(mtStudentCommt);
 
 			if (msg != null) {
-
+                   // Recieve message with the following requirements
 				if (msg.getConversationId().equals("TChoice-Company")) {
 					String content = msg.getContent();
 					System.out.println("Reply from Thesis Commitee to Student ...");
@@ -210,6 +207,9 @@ public class Student extends Agent {
 	}
 
 	public class StudentProposal extends Behaviour {
+		/*
+		 * Student sends message to Supervisor about Thesis Proposal. 
+		 * */
 		int num = 0;
 
 		public void action() {
@@ -217,6 +217,7 @@ public class Student extends Agent {
 
 			switch (num) {
 			case 0:
+				// Prepare and send message 
 				ACLMessage pr = new ACLMessage(ACLMessage.QUERY_REF);
 				pr.addReceiver(new AID("supervisor", AID.ISLOCALNAME));
 				pr.setConversationId("TChoice-Proposal");
@@ -238,29 +239,32 @@ public class Student extends Agent {
 
 		@Override
 		public boolean done() {
-			// TODO Auto-generated method stub
 			return num == 2;
 		}
 	}
 
 	public class ThesisInfoFromSup extends CyclicBehaviour {
-
+      /*
+       * Get thesis information from supervisor and decide whether thesis is accepted or not. 
+       * 
+       * */
 		public void action() {
-			// TODO Auto-generated method stub
+			// Recieve message
 			ACLMessage msg = myAgent.receive(mtStudentSupp);
 
 			if (msg != null) {
-
+               
+				// Get specific message. 
 				String content = msg.getContent();
 				System.out.println();
 				System.out.println("Reply from Supervisor to Student ...");
 				System.out.println(content);
-				// System.out.println("Array size :"+tst.size());
 				Random rd = new Random(); // Initialize the Random object for boolean
 
 				interested = rd.nextBoolean(); // Randomly select a boolean value for either interested or not
 				ACLMessage reply = msg.createReply();
-				// System.out.println(reply);
+		
+				
 				if (interested == true) {
 
 					reply.setPerformative(ACLMessage.CONFIRM);
@@ -274,6 +278,7 @@ public class Student extends Agent {
 					reply.setContent("THESIS NOT SELECTED");
 					reply.setConversationId("TChoice-Proposal1");
 				}
+				// Send reply to sender. 
 				myAgent.send(reply);
 
 			} else {
@@ -283,52 +288,28 @@ public class Student extends Agent {
 
 	}
 
-	public class RecieveNumOfThesis extends CyclicBehaviour {
-
-		@Override
-		public void action() {
-			// TODO Auto-generated method stub
-
-			MessageTemplate mT = MessageTemplate.MatchConversationId("numberOfThesis");
-
-			ACLMessage thNo = receive(mT);
-			if (thNo != null) {
-				String content = thNo.getContent();
-
-				System.out.println("Number of possible thesis available : " + content);
-				// System.out.println(content);
-				Random random = new Random();
-				randomNo = random.nextInt((Integer.parseInt(content) - 1) - 0) + 0;
-				// System.out.println("Random number is "+randomNo);
-
-			} else {
-
-				block();
-			}
-
-		}
-	}
+	
 
 	public class InterestedProposal extends Behaviour {
+		/*
+		 * Student sends message to supervisor about possible thesis proposal
+		 * */
 
 		@Override
 		public void action() {
-			// TODO Auto-generated method stub
 			int step = 0;
 			switch (step) {
 			case 0:
-				  
-
+				// Send message to supervisor about student based proposal
 					ACLMessage pr = new ACLMessage(ACLMessage.PROXY);
 					pr.addReceiver(new AID("supervisor", AID.ISLOCALNAME));
 					pr.setConversationId("Possible-Proposal");
 					pr.setReplyWith("Inform_ref " + System.currentTimeMillis());
-					//String string = String.valueOf(randomNo);
 					pr.setContent("I GOT A POSSIBLE THESIS");
 					
 					send(pr);
 					step = 2;
-					// interested=false;
+	
 					MessageTemplate mtStudentSupp = MessageTemplate.and(MessageTemplate.MatchConversationId("Possible-Proposal"),
 							MessageTemplate.MatchInReplyTo(pr.getReplyWith()));
 					
@@ -346,28 +327,22 @@ public class Student extends Agent {
 	}
 	
 	public class RecievedMsgSupStuChoice extends CyclicBehaviour {
+		/*
+		 * Message from Supervisor to Student about Possible thesis Proposal
+		 * 
+		 * */
 		@Override
 		public void action() {
 			// TODO Auto-generated method stub
 			ACLMessage msg = myAgent.receive(mtStudentCommt);
 
 			if (msg != null) {
-
+                    // Recieve message 
 				if (msg.getConversationId().equals("Possible-Proposal")) {
 					String content = msg.getContent();
 					System.out.println("Reply from Supervisor to Student ...");
 					System.out.println(content);
-					
-					/*ACLMessage pr = new ACLMessage(ACLMessage.CONFIRM);
-					pr.addReceiver(new AID("supervisor", AID.ISLOCALNAME));
-					pr.setConversationId("Confirm-Thesis");
-					pr.setReplyWith("Confirm_ref " + System.currentTimeMillis());
-					pr.setContent("THESIS CONFIRMATION RECIEVED");
-					send(pr);
-					
-					MessageTemplate mtStudentSupp = MessageTemplate.and(MessageTemplate.MatchConversationId("Confirm-Thesis"),
-							MessageTemplate.MatchInReplyTo(pr.getReplyWith())); */
-					
+						
 				}
 
 			} else {
@@ -379,13 +354,15 @@ public class Student extends Agent {
 	}
 	
 	public class MsgSupStuChoice extends CyclicBehaviour {
-		@Override
+		/*
+		 * Message from Supervisor to Student about StudentChoice Thesis
+		 * 
+		 * */
 		public void action() {
-			// TODO Auto-generated method stub
 			ACLMessage msg = myAgent.receive(mtStudentCommt);
 
 			if (msg != null) {
-
+                    // Recieve message. 
 				if (msg.getConversationId().equals("Assign_Thesis")) {
 					String msgFrSup = msg.getContent();
 					System.out.println();
@@ -402,10 +379,13 @@ public class Student extends Agent {
 	}
 	
 	public class ThRecieveFrThCom extends CyclicBehaviour {
-
-		@Override
+        /*
+         * Reviewer information sent by Thesis Committee. 
+         * Send thesis information to Reviewer and Thesis Agents 
+         * 
+         * */
 		public void action() {
-			// TODO Auto-generated method stub
+			
 			MessageTemplate mt = MessageTemplate.MatchConversationId("ThReviewer");
 			ACLMessage msg = receive(mt); 
 			
@@ -436,10 +416,12 @@ public class Student extends Agent {
 	}
 	
 	public class RecieveFromSupProposal extends CyclicBehaviour{
+		/*
+		 * Message from supervisor to student about wayforward for available proposals
+		 * 
+		 * */
 
-		@Override
 		public void action() {
-			// TODO Auto-generated method stub
 			MessageTemplate mt = MessageTemplate.MatchConversationId("Proposal_Assigned");
 			ACLMessage msg = receive(mt);
 			
@@ -453,7 +435,6 @@ public class Student extends Agent {
 		}
 		
 	}
-	
 	
 	
 }

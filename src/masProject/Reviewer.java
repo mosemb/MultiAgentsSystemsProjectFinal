@@ -13,6 +13,8 @@ public class Reviewer extends Agent {
 		
 		addBehaviour(new RecieveMessageFromTh());
 		addBehaviour(new RecieveMessfrStu());
+		addBehaviour(new RecieveMessageFromSupCom());
+		
 		 
 		
 	}
@@ -58,6 +60,29 @@ public class Reviewer extends Agent {
 				th.setContent("STUDENT THESIS PROGRESS ON COURSE");
 				send(th);
 			}
+			
+		}
+		
+	}
+	
+	public class RecieveMessageFromSupCom extends CyclicBehaviour {
+     /* Message from Thesis committe to Reviewer about Thesis assignment connects 
+      * with inner class RecieveFromSupCompany
+      * */
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			MessageTemplate mt = MessageTemplate.MatchConversationId("ThReviewerCompany2");
+			ACLMessage msg = receive(mt); 
+			
+			if(msg!=null) {
+				String content = msg.getContent();
+				System.out.println();
+				System.out.println("Message from Thesis Commitee to Reviewer about Thesis assignemnt ...");
+				System.out.println(content);
+				
+			}
+			
 			
 		}
 		

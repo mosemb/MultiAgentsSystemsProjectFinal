@@ -42,6 +42,8 @@ public class Supervisor  extends Agent{
 		addBehaviour(new StudentToSupervisor());
 	    addBehaviour(new RecieveStudentThesisChoice());
 	    addBehaviour(new RecieveFromThCom());
+	    addBehaviour(new MessageFromThComCompany());
+	    
 	    
 		
 		
@@ -110,15 +112,40 @@ public class Supervisor  extends Agent{
 		
 	}
 	
-	public class MessageFromStudent extends CyclicBehaviour{
+	public class MessageFromThComCompany extends CyclicBehaviour {
+		
+		/*
+		 * Recieve message from Thesis committe about reviewer
+		 * */
 
 		@Override
 		public void action() {
 			// TODO Auto-generated method stub
+			MessageTemplate mt = MessageTemplate.MatchConversationId("THReviewer");
+			ACLMessage msg = receive(mt);
+			
+			if(msg!=null) {
+				String content = msg.getContent();
+				System.out.println();
+				System.out.println("Message from Thesis Commitee to Supervisor ... ");
+				System.out.println(content.toUpperCase());
+			}
+			
+		}
+		
+	}
+	
+	public class MessageFromStudent extends CyclicBehaviour{
+  /* Recieve message from student to supervisor about Thesis information. 
+   * Supervisor sends back message about information 
+   * 
+   * */
+		@Override
+		public void action() {
+			
 			MessageTemplate mTemplate  = MessageTemplate.MatchConversationId("TChoice-Proposal"); 
-					//MatchPerformative(ACLMessage.INFORM);
-			ACLMessage AclMessage  = receive(mTemplate); 
-			ACLMessage no = receive(mTemplate);
+			ACLMessage AclMessage  = receive(mTemplate); // Recieve incoming messages
+		
 			
 			
 			if(AclMessage!=null) {
@@ -202,7 +229,8 @@ public class Supervisor  extends Agent{
 					 tostu.setConversationId("Proposal_Assigned");
 					 tostu.setReplyWith("Proposal_Thesis "+ System.currentTimeMillis());
 					 tostu.setContent("THESIS ASSIGNED, Start Date: 4/5/21 - End Date 10/8/21, THESIS STATUS - ON GOING");
-					 send(tostu);
+					 send(tostu); 
+					 
 					 
 					/* ACLMessage toCommt = new ACLMessage(ACLMessage.INFORM);
 						toCommt.addReceiver(new AID("ThesisCommittee", AID.ISLOCALNAME));                       
