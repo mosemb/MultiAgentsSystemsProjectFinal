@@ -37,11 +37,14 @@ public class ThesisCommt extends Agent{
 		
 		
 	
-          addBehaviour(new  recieveFromStudent());
+          addBehaviour(new  recieveFromStudent());  // Behavior that recieves the message from Student Agent
           addBehaviour(new RecieveMessageFromSupC());
           addBehaviour(new RecieveFromSup());
-         // MessageFromReviewer
           addBehaviour(new MessageFromReviewer());
+          addBehaviour(new FromSupToThComtP());
+          //RecieveFromSupCompany
+          addBehaviour(new RecieveFromSupCompany());
+        
         
           
                
@@ -49,11 +52,16 @@ public class ThesisCommt extends Agent{
 		  
 	
 	public class recieveFromStudent extends  CyclicBehaviour {
+		/*
+		 * This class recieves messages from the student after Company choice is chosen
+		 * But also sends back message about either Company Proposal has been accepted or not. 
+		 * */
 			public void action() {
 				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.PROPOSE);
 				ACLMessage msg = receive(mt);
 				
 				if (msg != null) {
+					// Recieves the message content from Student to Thesis Committee 
 					String content = msg.getContent(); 
 					Random rand = new Random();
 					boolean acceptable = rand.nextBoolean(); // Pick either a boolean value
@@ -67,7 +75,7 @@ public class ThesisCommt extends Agent{
 						reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
 						reply.setContent("PROPOSAL ACCEPTED"); 
 						
-					
+					    // This links up with the supervisor agent. The agent is being told to review the thesis
 						ACLMessage toSupervisor = new ACLMessage(ACLMessage.REQUEST);
 						toSupervisor.addReceiver(new AID("supervisor", AID.ISLOCALNAME));
 						toSupervisor.setConversationId("TChoice-Company2");
@@ -78,16 +86,15 @@ public class ThesisCommt extends Agent{
 						mtThCommtSupr = MessageTemplate.and(MessageTemplate.MatchConversationId("TChoice-Company2"), 
 								MessageTemplate.MatchInReplyTo(toSupervisor.getReplyWith()));
 						
-						//System.out.println(mtThCommtSupr);
-						
-					
 						
 					}else {
+						// Reply to Student about Company proposal from Thesis Committe
 						reply.setPerformative(ACLMessage.REJECT_PROPOSAL);
 						reply.setContent("PROPOSAL REJECTED, START AGAIN");
-						//System.out.println("Go back to commandline to choose either Company, Proposal or StudentChoice");
+					
 			            
 					}
+					// Overall reply either positive or negative 
 					myAgent.send(reply);
 					
 				}
@@ -98,13 +105,14 @@ public class ThesisCommt extends Agent{
 		}
 	
 	public class RecieveMessageFromSupC extends CyclicBehaviour{
-
+    /* Recieves message from Supervisor Agent informing them in the affirmative that the thesis is being reviewed. 
+     * 
+     *  */
 		@Override
 		public void action() {
 			// TODO Auto-generated method stub
 			
 			ACLMessage msg = myAgent.receive(mtThCommtSupr);
-			//System.out.println(msg);
 			
 			if(msg!=null&&msg.getConversationId()=="TChoice-Company2") {
 				String content = msg.getContent();
@@ -114,6 +122,43 @@ public class ThesisCommt extends Agent{
 				
 			}else {
 				block();
+			}
+			
+		}
+		
+	}
+	
+	public class RecieveFromSupCompany extends CyclicBehaviour {
+		
+		/*
+		 * Recieves message from Supervisor about Thesis progress with Student. 
+		 * 
+		 * */
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			MessageTemplate mt = MessageTemplate.MatchConversationId("TheAssignedToStuCompany");
+			ACLMessage msg = receive(mt);
+			
+			if(msg!=null) {
+				
+				 Random random = new Random(); 
+				 int randomNo = random.nextInt((reviewers.size()-1)-0)+0;
+				 String reviewer = reviewers.get(randomNo);
+				 
+				String content = msg.getContent();
+				System.out.println();
+				System.out.println("Message from Supervisor to Thesis Committee about thesis Assignement");
+				System.out.println(content);
+				
+				    ACLMessage tostudent = new ACLMessage(ACLMessage.INFORM_IF);
+					tostudent.addReceiver(new AID("student", AID.ISLOCALNAME));
+					tostudent.setConversationId("ThReviewerCompany");
+					tostudent.setReplyWith("ThReviewerCompany"+ System.currentTimeMillis());
+					tostudent.setContent(reviewer);
+					send(tostudent); 
+				
 			}
 			
 		}
@@ -204,6 +249,37 @@ public class ThesisCommt extends Agent{
 				System.out.println(content);
 			}
 			
+			
+		}
+		
+	}
+	
+	public class FromSupToThComtP extends CyclicBehaviour {
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			
+			MessageTemplate mt = MessageTemplate.MatchConversationId("Proposal_Assigned_Thesis");
+			ACLMessage msg = receive(mt);
+			
+			if(msg!=null) {
+				String content = msg.getContent();
+				System.out.println();
+				System.out.println("Message from Supervisor to Thesis Commitee");
+				System.out.print(content);
+				
+				/* Random random = new Random(); 
+				 int randomNo = random.nextInt((reviewers.size()-1)-0)+0;
+				 String reviewer = reviewers.get(randomNo);
+				 System.out.println();
+				 System.out.println("Reviewer details by Thesis Commitee");
+				 System.out.println(" THE SELECTED REVIEWER IS ..."+reviewer);
+				 System.out.println(" REVIEWER NAME TO REMOVE FROM LIST ..."+reviewers.remove(randomNo));
+				 System.out.println(" REMAINING REVIEWERS IN LIST ..."+ reviewers);
+				 System.out.println(" THESIS ON GOING");  */
+				 
+			}
 			
 		}
 		

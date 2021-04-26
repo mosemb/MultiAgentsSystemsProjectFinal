@@ -25,19 +25,15 @@ public class Supervisor  extends Agent{
 	
 	
 	public void setup() {
-		
+		// Gets arguments from command line for the  proposal list. 
 		Object [] args = getArguments();
-		//System.out.println("The arguments array has "+args.length);
 		
+		
+		// Adds proposals to the arraylist thisProposal
 		for(Object i: args) {
-			//System.out.println(" The value of i is"+ i);
+		
 			thesisProposal.add((String) i);
 			
-		}
-		
-		//Array List 
-		for(String i:thesisProposal) {
-			//System.out.println("The value of i is aRRAY lIST  "+ i );
 		}
 		
 		
@@ -59,6 +55,12 @@ public class Supervisor  extends Agent{
 			}
 	
 	public class RequestsFromThesisCom extends CyclicBehaviour{
+	/*
+	 * 
+	 * Recieves message from Thesis Committe to review the student thesis from a company
+	 * 
+	 * 
+	 * */
 
 		@Override
 		public void action() {
@@ -67,16 +69,34 @@ public class Supervisor  extends Agent{
 			ACLMessage msg = receive(mt); 
 			
 			if(msg!=null) {
+				// Recieves the message from the Thesis Committee 
 				String content = msg.getContent();
 				
 				System.out.println();
 				System.out.println("Message from Thesis Committee to Supervisor ...");
 				System.out.println(content);
 				
+				// Sends back the message to The Thesis Committee Informing them the Thesis is being reviewed
 				ACLMessage reply = msg.createReply(); // Reply message to sender. 
 				reply.setPerformative(ACLMessage.INFORM);
 				reply.setContent("THESIS BEING REVIEWED");
 				myAgent.send(reply);
+				
+				// Sends message to Student informing them of the new details.
+				ACLMessage toStudent = new ACLMessage(ACLMessage.CFP); 
+				toStudent.addReceiver(new AID( "student",AID.ISLOCALNAME));
+				toStudent.setConversationId("WayForwardCompany");
+				toStudent.setReplyWith("ThesisNum "+ System.currentTimeMillis());
+				toStudent.setContent("THESIS ASSIGNED, Start Date: 4/5/21 - End Date 10/8/21, THESIS STATUS - ON GOING");
+				send(toStudent);
+				
+				//Sends message to Thesis Committee Thesis being reviewed. 
+				ACLMessage toThCom = new ACLMessage(ACLMessage.INFORM_REF); 
+				toThCom.addReceiver(new AID( "ThesisCommittee",AID.ISLOCALNAME));
+				toThCom.setConversationId("TheAssignedToStuCompany");
+				toThCom.setReplyWith("ThesisAssignement "+ System.currentTimeMillis());
+				toThCom.setContent("THESIS ASSIGNED TO STUDENT");
+				send(toThCom);
 				
 				
 				
@@ -177,6 +197,19 @@ public class Supervisor  extends Agent{
 					 System.out.println(" THESIS NAME TO REMOVE FROM LIST ..."+thesisProposal.remove(randomNo));
 					 System.out.println(" REMAINING THESIS PROPOSALS IN LIST ..."+ thesisProposal);
 					 
+					ACLMessage tostu = new ACLMessage(ACLMessage.PROPOSE);
+					 tostu.addReceiver( new AID("student",AID.ISLOCALNAME));
+					 tostu.setConversationId("Proposal_Assigned");
+					 tostu.setReplyWith("Proposal_Thesis "+ System.currentTimeMillis());
+					 tostu.setContent("THESIS ASSIGNED, Start Date: 4/5/21 - End Date 10/8/21, THESIS STATUS - ON GOING");
+					 send(tostu);
+					 
+					/* ACLMessage toCommt = new ACLMessage(ACLMessage.INFORM);
+						toCommt.addReceiver(new AID("ThesisCommittee", AID.ISLOCALNAME));                       
+						toCommt.setConversationId("Proposal_Assigned_Thesis");
+						toCommt.setReplyWith("Proposal_Accepted"+ System.currentTimeMillis());
+						toCommt.setContent("THESIS ASSIGNED, TO STUDENT");
+						send(toCommt); */
 					 
 				 }
 					
@@ -207,7 +240,7 @@ public class Supervisor  extends Agent{
 			     if(selected == true ) {
 			    	 
 			    	    ACLMessage reply = msg.createReply();
-						reply.setPerformative(ACLMessage.INFORM);
+						reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
 						reply.setContent("THESIS HAS BEEN SELECTED, AM YOUR SUPERVISOR");
 						myAgent.send(reply);
 						
