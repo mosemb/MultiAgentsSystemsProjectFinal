@@ -11,6 +11,8 @@ public class Reviewer extends Agent {
 	
 	public void setup() {
 		
+		
+		// Behaviors of Agent
 		addBehaviour(new RecieveMessageFromTh());
 		addBehaviour(new RecieveMessfrStu());
 		addBehaviour(new RecieveMessageFromSupCom());
@@ -20,8 +22,10 @@ public class Reviewer extends Agent {
 	}
 	
 	public class RecieveMessageFromTh extends CyclicBehaviour{
-
-		@Override
+		/*
+		 * Recieve message from thesis committee about the reviewer
+		 * 
+		 * */
 		public void action() {
 			// TODO Auto-generated method stub
 			MessageTemplate mt = MessageTemplate.MatchConversationId("StudentReviewer");
@@ -39,8 +43,11 @@ public class Reviewer extends Agent {
 	}
 	
 	public class RecieveMessfrStu extends CyclicBehaviour {
-
-		@Override
+      /*
+       * Recieve message from student to reviewer about progress of thesis
+       * 
+       * */
+	
 		public void action() {
 			// TODO Auto-generated method stub
 			
@@ -71,7 +78,6 @@ public class Reviewer extends Agent {
       * */
 		@Override
 		public void action() {
-			// TODO Auto-generated method stub
 			MessageTemplate mt = MessageTemplate.MatchConversationId("ThReviewerCompany2");
 			ACLMessage msg = receive(mt); 
 			

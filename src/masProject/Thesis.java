@@ -9,15 +9,18 @@ public class Thesis  extends Agent{
 	
 	public void setup() {
 		
+		// Thesis behavior
 		addBehaviour(new RecieveMessageFromStudent());
 		
 	}
 	
 	public class RecieveMessageFromStudent extends CyclicBehaviour{
+		/*
+		 * Recieve message from student about thesis 
+		 * */
 
 		@Override
 		public void action() {
-			// TODO Auto-generated method stub
 			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.AGREE);
 			ACLMessage msg = receive(mt);
 			
