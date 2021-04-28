@@ -13,10 +13,17 @@ import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.TickerBehaviour;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
 public class ThesisCommt extends Agent{
+	// The list of known seller agents
+		private AID[] studentAgents;
+		
 	MessageTemplate mtThCommtSupr;
 	
 	/**
@@ -36,6 +43,22 @@ public class ThesisCommt extends Agent{
 			reviewers.add((String) arg);
 			
 		} 
+		// Register services on yellow pages
+		DFAgentDescription dfd = new DFAgentDescription();
+		dfd.setName(getAID());
+		
+		ServiceDescription sd = new ServiceDescription();
+		sd.setType("ThesisCommt-agent");
+		sd.setName("MASTERS-GRADUATION");
+		
+		dfd.addServices(sd);
+		
+		try {
+			DFService.register(this, dfd);
+		}
+		catch (FIPAException fe) {
+			fe.printStackTrace();
+		}
 		// Behaviors for the Agent
           addBehaviour(new  recieveFromStudent());  
           addBehaviour(new RecieveMessageFromSupC());
@@ -43,10 +66,14 @@ public class ThesisCommt extends Agent{
           addBehaviour(new MessageFromReviewer());
           addBehaviour(new FromSupToThComtP()); 
           addBehaviour(new RecieveFromSupCompany());
-        
-        
+          addBehaviour(new RecieveBroadCast());
           
-               
+          
+          // System.out.println("Trying to buy "+targetBookTitle);
+		 // Update the list of seller agents
+          
+      	// Add a TickerBehaviour that schedules a request to seller agents every minute
+       // System.out.println("Found the following seller agents:");     
     }
 		  
 	
@@ -64,6 +91,7 @@ public class ThesisCommt extends Agent{
 					String content = msg.getContent(); 
 					Random rand = new Random();
 					boolean acceptable = rand.nextBoolean(); // Pick either a boolean value
+					System.out.println();
 					System.out.println("Message from Student to Thesis Commitee ... ");
 					ACLMessage reply = msg.createReply();
 					System.out.println(content);
@@ -290,6 +318,26 @@ public class ThesisCommt extends Agent{
 				System.out.println("Message from Supervisor to Thesis Commitee");
 				System.out.print(content);
 				 
+			}
+			
+		}
+		
+	}
+	
+	public class RecieveBroadCast extends CyclicBehaviour {
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+			ACLMessage msg = receive(mt);
+			
+			if(msg!=null && msg.getConversationId().equals("BroadCast_id")) {
+				String content = msg.getContent();
+				System.out.println();
+				System.out.println("Printing out broadcast message from Student! -ThesisCommitee ");
+				System.out.println(content);
+				
 			}
 			
 		}

@@ -10,8 +10,13 @@ import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import masProject.ThesisCommt.RecieveBroadCast;
 
 public class Supervisor  extends Agent{
 	
@@ -36,6 +41,23 @@ public class Supervisor  extends Agent{
 			
 		}
 		
+		// Register services on yellow pages
+				DFAgentDescription dfd = new DFAgentDescription();
+				dfd.setName(getAID());
+				
+				ServiceDescription sd = new ServiceDescription();
+				sd.setType("supervisor-agent");
+				sd.setName("MASTERS-GRADUATION");
+				
+				dfd.addServices(sd);
+				
+				try {
+					DFService.register(this, dfd);
+				}
+				catch (FIPAException fe) {
+					fe.printStackTrace();
+				}
+		
 		
 		addBehaviour(new RequestsFromThesisCom());
 		addBehaviour(new MessageFromStudent());
@@ -43,6 +65,7 @@ public class Supervisor  extends Agent{
 	    addBehaviour(new RecieveStudentThesisChoice());
 	    addBehaviour(new RecieveFromThCom());
 	    addBehaviour(new MessageFromThComCompany());
+	    addBehaviour(new RecieveBroadCast());
 	    
 	    
 		
@@ -204,12 +227,12 @@ public class Supervisor  extends Agent{
 					 System.out.println(" REMAINING THESIS PROPOSALS IN LIST ..."+ thesisProposal);
 					 
 					 // Send message to student about details for the thesis
-					ACLMessage tostu = new ACLMessage(ACLMessage.PROPOSE);
+					/*ACLMessage tostu = new ACLMessage(ACLMessage.PROPOSE);
 					 tostu.addReceiver( new AID("student",AID.ISLOCALNAME));
 					 tostu.setConversationId("Proposal_Assigned");
 					 tostu.setReplyWith("Proposal_Thesis "+ System.currentTimeMillis());
 					 tostu.setContent("THESIS ASSIGNED, Start Date: 4/5/21 - End Date 10/8/21, THESIS STATUS - ON GOING");
-					 send(tostu); 
+					 send(tostu); */
 					 
 				 }
 					
@@ -299,6 +322,26 @@ public class Supervisor  extends Agent{
 				System.out.println();
 				System.out.println("Message from Thesis Committe to Supervisor concerning Reviewer name ...");
 				System.out.println(content.toUpperCase());
+				
+			}
+			
+		}
+		
+	}
+	
+	public class RecieveBroadCast extends CyclicBehaviour {
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+			ACLMessage msg = receive(mt);
+			
+			if(msg!=null && msg.getConversationId().equals("BroadCast_id")) {
+				String content = msg.getContent();
+				System.out.println();
+				System.out.println("Printing out broadcast message from Student! -Supervisor ");
+				System.out.println(content);
 				
 			}
 			

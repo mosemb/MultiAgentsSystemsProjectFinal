@@ -6,12 +6,13 @@ import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
+import jade.domain.DFService;
 import jade.domain.FIPAException;
 import jade.domain.FIPANames.MTP;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
-import studentChoice.InterestedProposal;
-import studentChoice.InterestedProposal.Interested;
 
 public class Student extends Agent {
 
@@ -37,7 +38,9 @@ public class Student extends Agent {
 		// Get commandline arguments
 		args = getArguments();
 		String choice = (String) args[0];
-		String[] choices = { "Company", "Proposals", "StudentChoice" };
+		String[] choices = { "Company", "Proposals", "StudentChoice", "YellowPages"};
+		
+		//System.out.println("agent "+getAID().getLocalName() +" starting.");
 
 		// Available choices
 		for (String x : choices) {
@@ -53,6 +56,7 @@ public class Student extends Agent {
 		 */
 		switch (choice) {
 		case "Company":
+			System.out.println();
 			System.out.println("Student chose to do Thesis with  a company"); 
 			addBehaviour(new choiceDesertation());
 			addBehaviour(new RecievedMsgThCom());
@@ -63,6 +67,7 @@ public class Student extends Agent {
 			break;
 
 		case "Proposals":
+			System.out.println();
 			System.out.println("Student chose from proposals");
 			addBehaviour(new StudentProposal());
 			addBehaviour(new ThesisInfoFromSup());
@@ -71,9 +76,8 @@ public class Student extends Agent {
 			break;
 
 		case "StudentChoice":
+			System.out.println();
 			System.out.println("Its a Student Choice");
-		    String str = "THESIS ASSIGNED, Start Date: 4/5/21 - End Date 10/8/21, THESIS STATUS - ON GOING";
-		    
 			addBehaviour(new InterestedProposal());
 			addBehaviour(new RecievedMsgSupStuChoice());
 			addBehaviour(new MsgSupStuChoice()); 
@@ -81,11 +85,37 @@ public class Student extends Agent {
 		
 			
 			break;
+		case "YellowPages":
+			System.out.println();
+			System.out.println("Agents on yellow pages");
+			addBehaviour(new YellowPages());
+			
+			break;
 
 		default:
 			System.out.println("Not a valid Choice");
 			break;
 		}
+		
+		// Register the book-selling service in the yellow pages
+				DFAgentDescription dfd = new DFAgentDescription();
+				dfd.setName(getAID());
+				
+				ServiceDescription sd = new ServiceDescription();
+				sd.setType("student-agent");
+				sd.setName("MASTERS-GRADUATION");
+				
+				dfd.addServices(sd);
+				
+				try {
+					DFService.register(this, dfd);
+				}
+				catch (FIPAException fe) {
+					fe.printStackTrace();
+				}
+		
+		
+		
 
 	}
 
@@ -340,6 +370,7 @@ public class Student extends Agent {
                     // Recieve message 
 				if (msg.getConversationId().equals("Possible-Proposal")) {
 					String content = msg.getContent();
+					System.out.println();
 					System.out.println("Reply from Supervisor to Student ...");
 					System.out.println(content);
 						
@@ -436,5 +467,65 @@ public class Student extends Agent {
 		
 	}
 	
+    public class YellowPages extends Behaviour{
+    	private AID[] allAgents;
+    	
+    	int stop = 0;
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			//System.out.println("Trying to buy "+targetBookTitle);
+			// Update the list of seller agents
+			System.out.println();
+			System.out.println("Found the following agents on yellow pages");
+			DFAgentDescription template = new DFAgentDescription();
+			//ServiceDescription sd = new ServiceDescription();
+			//sd.setType("student-agent");
+			//template.addServices(sd);
+			try {
+				DFAgentDescription[] result = DFService.search(myAgent, template); 
+				Thread.sleep(4000);
+				
+				allAgents= new AID[result.length];
+			stop = 0;
+			// Send a message to all agents in the container 
+			
+			/*
+			 * ACLMessage thesis = new ACLMessage(ACLMessage.AGREE);
+				thesis.addReceiver(new AID("thesis",AID.ISLOCALNAME));
+				thesis.setReplyWith("Agree thesis in progress"+System.currentTimeMillis());
+				thesis.setConversationId("ThesisWritting");
+				thesis.setContent("THESIS WRITTING IN PROGRESS");
+				send(thesis); 
+			 * */
+			    
+			   ACLMessage toall = new ACLMessage(ACLMessage.INFORM);
+			   
+				for (int i = 0; i < result.length; ++i) {
+					allAgents[i] = result[i].getName();
+					System.out.println(allAgents[i].getName());
+					toall.addReceiver(allAgents[i]);
+					stop = stop+1;
+					//System.out.println(result.length);
+				}
+				toall.setReplyWith("BroadCastMessage"+System.currentTimeMillis());
+				toall.setConversationId("BroadCast_id");
+				toall.setContent("Student checking in on you");
+				send(toall);
+			}
+			catch (FIPAException | InterruptedException fe) {
+				fe.printStackTrace();
+			}
+
+		}
+
+		@Override
+		public boolean done() {
+			// TODO Auto-generated method stub
+			return true;
+		}
+	
+    }
+
 	
 }

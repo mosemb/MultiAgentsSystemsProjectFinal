@@ -3,19 +3,42 @@ package masProject;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import masProject.ThesisCommt.RecieveBroadCast;
 
 public class Reviewer extends Agent {
 	
 	
 	public void setup() {
 		
+		// Register services on yellow pages
+				DFAgentDescription dfd = new DFAgentDescription();
+				dfd.setName(getAID());
+				
+				ServiceDescription sd = new ServiceDescription();
+				sd.setType("reviewer-agent");
+				sd.setName("MASTERS-GRADUATION");
+				
+				dfd.addServices(sd);
+				
+				try {
+					DFService.register(this, dfd);
+				}
+				catch (FIPAException fe) {
+					fe.printStackTrace();
+				}
+		
 		
 		// Behaviors of Agent
 		addBehaviour(new RecieveMessageFromTh());
 		addBehaviour(new RecieveMessfrStu());
 		addBehaviour(new RecieveMessageFromSupCom());
+		addBehaviour(new RecieveBroadCast());
 		
 		 
 		
@@ -89,6 +112,26 @@ public class Reviewer extends Agent {
 				
 			}
 			
+			
+		}
+		
+	}
+	
+	public class RecieveBroadCast extends CyclicBehaviour {
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+			ACLMessage msg = receive(mt);
+			
+			if(msg!=null && msg.getConversationId().equals("BroadCast_id")) {
+				String content = msg.getContent();
+				System.out.println();
+				System.out.println("Printing out broadcast message from Student! -Reviewer ");
+				System.out.println(content);
+				
+			}
 			
 		}
 		
