@@ -66,6 +66,8 @@ public class Supervisor  extends Agent{
 	    addBehaviour(new RecieveFromThCom());
 	    addBehaviour(new MessageFromThComCompany());
 	    addBehaviour(new RecieveBroadCast());
+	    addBehaviour(new RecieveBroadCastFromStudent());
+	    
 	    
 	    
 		
@@ -349,5 +351,50 @@ public class Supervisor  extends Agent{
 		
 	}
 	
+	  
+	
+	public class RecieveBroadCastThCom extends CyclicBehaviour {
 
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+			ACLMessage msg = receive(mt);
+			
+			if(msg!=null && msg.getConversationId().equals("Supervisor_BroadCast_id")) {
+				String content = msg.getContent();
+				System.out.println();
+				System.out.println("Printing out broadcast message from Student! -Supervisor ");
+				System.out.println(content);
+				
+			}
+			
+		}
+		
+	}
+	
+	public class RecieveBroadCastFromStudent extends CyclicBehaviour {
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+			ACLMessage msg = receive(mt);
+			
+			if(msg!=null && msg.getConversationId().equals("Student_BroadCast_id")) {
+				String content = msg.getContent();
+				System.out.println();
+				System.out.println("Printing out broadcast message from Student! -Supervisor ");
+				System.out.println(content);
+				
+			}
+			
+		}
+		
+	}
+	
+	
+
+	
+	
 }

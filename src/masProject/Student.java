@@ -38,7 +38,7 @@ public class Student extends Agent {
 		// Get commandline arguments
 		args = getArguments();
 		String choice = (String) args[0];
-		String[] choices = { "Company", "Proposals", "StudentChoice", "YellowPages"};
+		String[] choices = { "Company", "Proposals", "StudentChoice", "YellowPages", "Student", "Reviewer"};
 		
 		//System.out.println("agent "+getAID().getLocalName() +" starting.");
 
@@ -89,7 +89,25 @@ public class Student extends Agent {
 			System.out.println();
 			System.out.println("Agents on yellow pages");
 			addBehaviour(new YellowPages());
+			break;
 			
+		case "Student":
+			System.out.println();
+			System.out.println("Students communication");
+			//addBehaviour(new RecieveBroadCastThCom());
+			break;
+			
+		case "Supervisor":
+			System.out.println();
+			System.out.println("Supervisor communication");
+			addBehaviour(new YellowPagesSup());
+			break;
+			
+		case "Reviewer":
+			System.out.println();
+			System.out.println("Reviewer communication");
+			addBehaviour(new YellowPagesRev());
+				
 			break;
 
 		default:
@@ -526,6 +544,144 @@ public class Student extends Agent {
 		}
 	
     }
+    
+    public class RecieveBroadCastThCom extends CyclicBehaviour {
 
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+			ACLMessage msg = receive(mt);
+			
+			if(msg!=null && msg.getConversationId().equals("Student_BroadCast_id")) {
+				String content = msg.getContent();
+				System.out.println();
+				System.out.println("Printing out broadcast message from Thesis Committee! -Student ");
+				System.out.println(content);
+				
+			}
+			
+		}
+		
+	}
+    
+    public class RecieveBroadCastSup extends CyclicBehaviour {
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+			ACLMessage msg = receive(mt);
+			
+			if(msg!=null && msg.getConversationId().equals("Supervisor_BroadCast_id")) {
+				String content = msg.getContent();
+				System.out.println();
+				System.out.println("Printing out broadcast message from Sup Committee! -Student ");
+				System.out.println(content);
+				
+			}
+			
+		}
+		
+	}
+    
+
+	 public class YellowPagesSup extends Behaviour{
+	    	private AID[] allAgents;
+	    	
+	    	int stop = 0;
+			@Override
+			public void action() {
+				System.out.println();
+				System.out.println("Found the following agents on yellow pages");
+				System.out.println();
+				DFAgentDescription template = new DFAgentDescription();
+				ServiceDescription sd = new ServiceDescription();
+				sd.setType("supervisor-agent");
+				template.addServices(sd);
+				try {
+					DFAgentDescription[] result = DFService.search(myAgent, template); 
+					Thread.sleep(3000);
+					
+					allAgents= new AID[result.length];
+				stop = 0;
+				//Send a message to all agents in the student agents 
+				   ACLMessage toall = new ACLMessage(ACLMessage.CFP);
+				   
+					for (int i = 0; i < result.length; ++i) {
+						allAgents[i] = result[i].getName();
+						System.out.println(allAgents[i].getName());
+						toall.addReceiver(allAgents[i]);
+						stop = stop+1;
+					}
+					toall.setReplyWith("BroadCastMessage"+System.currentTimeMillis());
+					toall.setConversationId("Student_BroadCast_id");
+					toall.setContent("Student checking in on you");
+					send(toall);
+					
+					//System.out.println(toall);
+				}
+				catch (FIPAException | InterruptedException fe) {
+					fe.printStackTrace();
+				}
+
+			}
+
+			@Override
+			public boolean done() {
+				// TODO Auto-generated method stub
+				return true;
+			}
+		
+	    }
+	 
+	 public class YellowPagesRev extends Behaviour{
+	    	private AID[] allAgents;
+	    	
+	    	int stop = 0;
+			@Override
+			public void action() {
+				System.out.println();
+				System.out.println("Found the following agents on yellow pages");
+				System.out.println();
+				DFAgentDescription template = new DFAgentDescription();
+				ServiceDescription sd = new ServiceDescription();
+				sd.setType("reviewer-agent");
+				template.addServices(sd);
+				try {
+					DFAgentDescription[] result = DFService.search(myAgent, template); 
+					Thread.sleep(3000);
+					
+					allAgents= new AID[result.length];
+				stop = 0;
+				//Send a message to all agents in the student agents 
+				   ACLMessage toall = new ACLMessage(ACLMessage.CFP);
+				   
+					for (int i = 0; i < result.length; ++i) {
+						allAgents[i] = result[i].getName();
+						System.out.println(allAgents[i].getName());
+						toall.addReceiver(allAgents[i]);
+						stop = stop+1;
+					}
+					toall.setReplyWith("BroadCastMessage"+System.currentTimeMillis());
+					toall.setConversationId("Reviewer_BroadCast_id");
+					toall.setContent("Student checking in on you");
+					send(toall);
+					
+					//System.out.println(toall);
+				}
+				catch (FIPAException | InterruptedException fe) {
+					fe.printStackTrace();
+				}
+
+			}
+
+			@Override
+			public boolean done() {
+				// TODO Auto-generated method stub
+				return true;
+			}
+		
+	    }
 	
 }

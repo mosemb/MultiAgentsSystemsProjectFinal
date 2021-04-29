@@ -39,6 +39,8 @@ public class Reviewer extends Agent {
 		addBehaviour(new RecieveMessfrStu());
 		addBehaviour(new RecieveMessageFromSupCom());
 		addBehaviour(new RecieveBroadCast());
+		addBehaviour(new RecieveBroadCastFromStudent());
+		
 		
 		 
 		
@@ -126,6 +128,26 @@ public class Reviewer extends Agent {
 			ACLMessage msg = receive(mt);
 			
 			if(msg!=null && msg.getConversationId().equals("BroadCast_id")) {
+				String content = msg.getContent();
+				System.out.println();
+				System.out.println("Printing out broadcast message from Student! -Reviewer ");
+				System.out.println(content);
+				
+			}
+			
+		}
+		
+	}
+	
+	public class RecieveBroadCastFromStudent extends CyclicBehaviour {
+
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+			ACLMessage msg = receive(mt);
+			
+			if(msg!=null && msg.getConversationId().equals("Reviewer_BroadCast_id")) {
 				String content = msg.getContent();
 				System.out.println();
 				System.out.println("Printing out broadcast message from Student! -Reviewer ");
