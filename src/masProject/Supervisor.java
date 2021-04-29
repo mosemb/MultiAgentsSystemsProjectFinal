@@ -228,13 +228,7 @@ public class Supervisor  extends Agent{
 					 System.out.println(" THESIS NAME TO REMOVE FROM LIST ..."+thesisProposal.remove(randomNo));
 					 System.out.println(" REMAINING THESIS PROPOSALS IN LIST ..."+ thesisProposal);
 					 
-					 // Send message to student about details for the thesis
-					/*ACLMessage tostu = new ACLMessage(ACLMessage.PROPOSE);
-					 tostu.addReceiver( new AID("student",AID.ISLOCALNAME));
-					 tostu.setConversationId("Proposal_Assigned");
-					 tostu.setReplyWith("Proposal_Thesis "+ System.currentTimeMillis());
-					 tostu.setContent("THESIS ASSIGNED, Start Date: 4/5/21 - End Date 10/8/21, THESIS STATUS - ON GOING");
-					 send(tostu); */
+					 
 					 
 				 }
 					
@@ -272,8 +266,7 @@ public class Supervisor  extends Agent{
 						
 						ACLMessage tostudent = new ACLMessage(ACLMessage.INFORM);
 						tostudent.addReceiver(new AID("student", AID.ISLOCALNAME));
-						// Might make the name dynamic by changing the String instance variable.
-						//toSupervisor.setConversationId("REVISE THESIS");
+						
 						tostudent.setConversationId("Assign_Thesis");
 						tostudent.setReplyWith("Assign Thesis "+ System.currentTimeMillis());
 						tostudent.setContent("THESIS ASSIGNED, Start Date: 4/5/21 - End Date 10/8/21, THESIS STATUS - ON GOING");
@@ -332,10 +325,13 @@ public class Supervisor  extends Agent{
 	}
 	
 	public class RecieveBroadCast extends CyclicBehaviour {
+		/*
+		 * Recieves broadcast messages for all the agents. 
+		 * */
 
 		@Override
 		public void action() {
-			// TODO Auto-generated method stub
+			
 			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
 			ACLMessage msg = receive(mt);
 			
@@ -352,32 +348,15 @@ public class Supervisor  extends Agent{
 	}
 	
 	  
-	
-	public class RecieveBroadCastThCom extends CyclicBehaviour {
-
-		@Override
-		public void action() {
-			// TODO Auto-generated method stub
-			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
-			ACLMessage msg = receive(mt);
-			
-			if(msg!=null && msg.getConversationId().equals("Supervisor_BroadCast_id")) {
-				String content = msg.getContent();
-				System.out.println();
-				System.out.println("Printing out broadcast message from Student! -Supervisor ");
-				System.out.println(content);
-				
-			}
-			
-		}
-		
-	}
-	
 	public class RecieveBroadCastFromStudent extends CyclicBehaviour {
+		/*
+		 * Recieves messages from the student to all the supervisor agents in the yellow pages
+		 * 
+		 * */
 
 		@Override
 		public void action() {
-			// TODO Auto-generated method stub
+			
 			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
 			ACLMessage msg = receive(mt);
 			

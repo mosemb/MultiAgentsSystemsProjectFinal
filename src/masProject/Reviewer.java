@@ -52,7 +52,6 @@ public class Reviewer extends Agent {
 		 * 
 		 * */
 		public void action() {
-			// TODO Auto-generated method stub
 			MessageTemplate mt = MessageTemplate.MatchConversationId("StudentReviewer");
 			ACLMessage msg = receive(mt);
 			
@@ -74,8 +73,6 @@ public class Reviewer extends Agent {
        * */
 	
 		public void action() {
-			// TODO Auto-generated method stub
-			
 			MessageTemplate mt = MessageTemplate.MatchConversationId("ThesisProgress");
 			ACLMessage msg = receive(mt); 
 			
@@ -120,10 +117,13 @@ public class Reviewer extends Agent {
 	}
 	
 	public class RecieveBroadCast extends CyclicBehaviour {
+		/*
+		 * Recieves messages for the broadcast to all agents in the yellow pages. 
+		 * */
 
 		@Override
 		public void action() {
-			// TODO Auto-generated method stub
+			
 			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
 			ACLMessage msg = receive(mt);
 			
@@ -140,10 +140,15 @@ public class Reviewer extends Agent {
 	}
 	
 	public class RecieveBroadCastFromStudent extends CyclicBehaviour {
+		/*
+		 * Recieves messages from the student to all reviewer agents. 
+		 * The process of message reception is the same as in all other circumstances. 
+		 * 
+		 * */
 
 		@Override
 		public void action() {
-			// TODO Auto-generated method stub
+			
 			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
 			ACLMessage msg = receive(mt);
 			

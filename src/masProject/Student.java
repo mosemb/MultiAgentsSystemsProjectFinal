@@ -486,37 +486,25 @@ public class Student extends Agent {
 	}
 	
     public class YellowPages extends Behaviour{
+    	/*
+    	 * Returns all agents in the yellow pages. 
+    	 * */
     	private AID[] allAgents;
     	
     	int stop = 0;
 		@Override
 		public void action() {
-			// TODO Auto-generated method stub
-			//System.out.println("Trying to buy "+targetBookTitle);
-			// Update the list of seller agents
+			// Return all the agents in yellow pages. 
 			System.out.println();
 			System.out.println("Found the following agents on yellow pages");
 			DFAgentDescription template = new DFAgentDescription();
-			//ServiceDescription sd = new ServiceDescription();
-			//sd.setType("student-agent");
-			//template.addServices(sd);
 			try {
 				DFAgentDescription[] result = DFService.search(myAgent, template); 
 				Thread.sleep(4000);
 				
 				allAgents= new AID[result.length];
 			stop = 0;
-			// Send a message to all agents in the container 
-			
-			/*
-			 * ACLMessage thesis = new ACLMessage(ACLMessage.AGREE);
-				thesis.addReceiver(new AID("thesis",AID.ISLOCALNAME));
-				thesis.setReplyWith("Agree thesis in progress"+System.currentTimeMillis());
-				thesis.setConversationId("ThesisWritting");
-				thesis.setContent("THESIS WRITTING IN PROGRESS");
-				send(thesis); 
-			 * */
-			    
+			// Send a message to all agents 
 			   ACLMessage toall = new ACLMessage(ACLMessage.INFORM);
 			   
 				for (int i = 0; i < result.length; ++i) {
@@ -546,6 +534,7 @@ public class Student extends Agent {
     }
     
     public class RecieveBroadCastThCom extends CyclicBehaviour {
+    	/*Recieves all broadcast messages for all agents in the yellow pages. */
 
 		@Override
 		public void action() {
@@ -566,6 +555,9 @@ public class Student extends Agent {
 	}
     
     public class RecieveBroadCastSup extends CyclicBehaviour {
+    	/*
+    	 * Recieves broadcasts to all agents in the yellow pages that are students
+    	 * */
 
 		@Override
 		public void action() {
@@ -587,6 +579,9 @@ public class Student extends Agent {
     
 
 	 public class YellowPagesSup extends Behaviour{
+		 /*
+		  * Sends yellowpage messages to all supervisor agents. 
+		  * */
 	    	private AID[] allAgents;
 	    	
 	    	int stop = 0;
@@ -618,8 +613,6 @@ public class Student extends Agent {
 					toall.setConversationId("Student_BroadCast_id");
 					toall.setContent("Student checking in on you");
 					send(toall);
-					
-					//System.out.println(toall);
 				}
 				catch (FIPAException | InterruptedException fe) {
 					fe.printStackTrace();
@@ -636,6 +629,9 @@ public class Student extends Agent {
 	    }
 	 
 	 public class YellowPagesRev extends Behaviour{
+		 /*
+		  * Sends yellowpage messages to all reviewer agents. 
+		  * */
 	    	private AID[] allAgents;
 	    	
 	    	int stop = 0;
@@ -668,7 +664,6 @@ public class Student extends Agent {
 					toall.setContent("Student checking in on you");
 					send(toall);
 					
-					//System.out.println(toall);
 				}
 				catch (FIPAException | InterruptedException fe) {
 					fe.printStackTrace();

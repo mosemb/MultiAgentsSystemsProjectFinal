@@ -60,6 +60,9 @@ public class Thesis  extends Agent{
 	}
 	
 	public class RecieveBroadCast extends CyclicBehaviour {
+		/*
+		 * Recieves broacast messages. 
+		 * */
 
 		@Override
 		public void action() {

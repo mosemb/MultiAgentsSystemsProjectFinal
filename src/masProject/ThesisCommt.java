@@ -283,7 +283,6 @@ public class ThesisCommt extends Agent{
        * 
        * */
 		public void action() {
-			// TODO Auto-generated method stub
 			MessageTemplate th = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
 			ACLMessage msg = receive(th); 
 			
@@ -326,6 +325,10 @@ public class ThesisCommt extends Agent{
 	}
 	
 	public class RecieveBroadCast extends CyclicBehaviour {
+		/*
+		 * Recieves broadcast messages for all the agents
+		 * 
+		 * */
 
 		@Override
 		public void action() {
@@ -346,6 +349,11 @@ public class ThesisCommt extends Agent{
 	}
 	
 	 public class YellowPages extends Behaviour{
+		 
+		 /*
+		  * Sends messages to all the student agents. 
+		  * 
+		  * */
 	    	private AID[] allAgents;
 	    	
 	    	int stop = 0;
