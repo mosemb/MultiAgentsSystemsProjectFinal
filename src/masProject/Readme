@@ -1,4 +1,4 @@
-To run the StudentChoice use the ThesisCommt.java file as the configurations file. The following arguments would surfice
+To run the StudentChoice use the Supervisor.java or ThesisCommt.java file as the configurations file. The following arguments would surfice
 in the text parameters field. 
 -gui "student:masProject.Student(StudentChoice);
 ThesisCommittee:masProject.ThesisCommt(James,Ricky,Brice,Jimmy);

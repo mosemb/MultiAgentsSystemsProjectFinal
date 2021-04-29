@@ -62,12 +62,13 @@ public class ThesisCommt extends Agent{
 		// Behaviors for the Agent
           addBehaviour(new  recieveFromStudent());  
           addBehaviour(new RecieveMessageFromSupC());
-          addBehaviour(new RecieveFromSup());
+          //addBehaviour(new RecieveFromSup()); 
           addBehaviour(new MessageFromReviewer());
           addBehaviour(new FromSupToThComtP()); 
           addBehaviour(new RecieveFromSupCompany());
           addBehaviour(new RecieveBroadCast());
-          //addBehaviour(new YellowPages());
+          addBehaviour(new StudentChoiceRecieve());
+          addBehaviour(new  RecieveBroadCastFromStudent());
           
           
           // System.out.println("Trying to buy "+targetBookTitle);
@@ -211,70 +212,7 @@ public class ThesisCommt extends Agent{
 		
 	}
 	
-	public class RecieveFromSup extends Behaviour{
-
-		/*
-		 * Recieve message from supervisor about thesis and also send message about Reviewers for the Thesis
-		 * 
-		 * */
-		public void action() {
-			
-			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CONFIRM);
-			
-			ACLMessage msg = receive(mt);
-			
-			if(msg!=null) {
-				
-				String content = msg.getContent();
-				System.out.println();
-				System.out.println("Message to Thesis Committee from Supervisor :");
-				System.out.println(content);
-				
-			
-				 Random random = new Random(); 
-				 int randomNo = random.nextInt((reviewers.size()-1)-0)+0;
-				 String reviewer = reviewers.get(randomNo);
-				 System.out.println();
-				 System.out.println("Reviewer details by Thesis Commitee");
-				 System.out.println(" THE SELECTED REVIEWER IS ..."+reviewer);
-				 System.out.println(" REVIEWER NAME TO REMOVE FROM LIST ..."+reviewers.remove(randomNo));
-				 System.out.println(" REMAINING REVIEWERS IN LIST ..."+ reviewers);
-				 System.out.println(" THESIS ON GOING");
-				 
-					//Send message about reviewer
-				    ACLMessage reply = msg.createReply();
-					reply.setPerformative(ACLMessage.INFORM_REF);
-					reply.setConversationId("DReviewer");
-					reply.setContent(reviewer);
-					myAgent.send(reply);
-				 
-					// Send message to student
-				    ACLMessage tostudent = new ACLMessage(ACLMessage.CFP);
-					tostudent.addReceiver(new AID("student", AID.ISLOCALNAME));
-					tostudent.setConversationId("ThReviewer");
-					tostudent.setReplyWith("Reviewer Th "+ System.currentTimeMillis());
-					tostudent.setContent(reviewer);
-					send(tostudent); 
-					
-			
-					//Send message to reviewer
-					ACLMessage toreviewer = new ACLMessage(ACLMessage.PROPAGATE);
-					toreviewer.addReceiver(new AID("reviewer", AID.ISLOCALNAME));
-					toreviewer.setConversationId("StudentReviewer");
-					toreviewer.setReplyWith("Reviewer "+System.currentTimeMillis());
-					toreviewer.setContent(reviewer.toUpperCase()+" YOU HAVE BEEN ASSIGNED TO STUDENT 1");
-					send(toreviewer);
-					
-			}
-			
-		}
-
 	
-		public boolean done() {
-			return false;
-		}
-
-	}
 	
 	public class MessageFromReviewer extends CyclicBehaviour{
       /*
@@ -398,5 +336,87 @@ public class ThesisCommt extends Agent{
 			}
 		
 	    }
+	 
+	 public class StudentChoiceRecieve extends CyclicBehaviour {
+         /*
+          * Receive messages for student choice
+          * */
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CONFIRM); 
+			ACLMessage msg = receive(mt);
+			
+			if(msg!=null&&msg.getConversationId().equals("Assign_Thesis_SC")) {
+				
+				String content = msg.getContent();
+				System.out.println("Printing from Thesis Committe"); 
+				System.out.println();
+				System.out.println("Message from Supervisor to Thesis Committee");
+				System.out.println(content);
+				
+				 Random random = new Random(); 
+				 int randomNo = random.nextInt((reviewers.size()-1)-0)+0;
+				 String reviewer = reviewers.get(randomNo);
+				 System.out.println();
+				 System.out.println("Reviewer details by Thesis Commitee");
+				 System.out.println(" THE SELECTED REVIEWER IS ..."+reviewer);
+				 System.out.println(" REVIEWER NAME TO REMOVE FROM LIST ..."+reviewers.remove(randomNo));
+				 System.out.println(" REMAINING REVIEWERS IN LIST ..."+ reviewers);
+				 System.out.println(" THESIS ON GOING");
+				 
+				//Send message about reviewer
+				    ACLMessage reply = msg.createReply();
+					reply.setPerformative(ACLMessage.INFORM_REF);
+					reply.setConversationId("DReviewer");
+					reply.setContent(reviewer);
+					myAgent.send(reply);
+					
+					// Send message to student
+				    ACLMessage tostudent = new ACLMessage(ACLMessage.CFP);
+					tostudent.addReceiver(new AID("student", AID.ISLOCALNAME));
+					tostudent.setConversationId("ThReviewer");
+					tostudent.setReplyWith("Reviewer Th "+ System.currentTimeMillis());
+					tostudent.setContent(reviewer);
+					send(tostudent); 
+					
+
+					//Send message to reviewer
+					ACLMessage toreviewer = new ACLMessage(ACLMessage.PROPAGATE);
+					toreviewer.addReceiver(new AID("reviewer", AID.ISLOCALNAME));
+					toreviewer.setConversationId("StudentReviewer");
+					toreviewer.setReplyWith("Reviewer "+System.currentTimeMillis());
+					toreviewer.setContent(reviewer.toUpperCase()+" YOU HAVE BEEN ASSIGNED TO STUDENT 1");
+					send(toreviewer);
+				
+			}
+			
+		}
+		
+		 
+	 }
+	 
+	 public class RecieveBroadCastFromStudent extends CyclicBehaviour {
+			/*
+			 * Recieves messages from the student to all reviewer agents. 
+			 * The process of message reception is the same as in all other circumstances. 
+			 * 
+			 * */
+			@Override
+			public void action() {
+				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+				ACLMessage msg = receive(mt);
+				
+				if(msg!=null && msg.getConversationId().equals("ThesisCom_BroadCast_id")) {
+					String content = msg.getContent();
+					System.out.println();
+					System.out.println("Printing out broadcast message from Student! -Thesis Committee ");
+					System.out.println(content);
+					
+				}
+				
+			}
+			
+		}
 	 
 }

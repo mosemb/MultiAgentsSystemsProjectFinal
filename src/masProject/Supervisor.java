@@ -58,20 +58,17 @@ public class Supervisor  extends Agent{
 					fe.printStackTrace();
 				}
 		
-		
+		// Agent behaviors 
 		addBehaviour(new RequestsFromThesisCom());
 		addBehaviour(new MessageFromStudent());
 		addBehaviour(new StudentToSupervisor());
-	    addBehaviour(new RecieveStudentThesisChoice());
+	   // addBehaviour(new RecieveStudentThesisChoice());
 	    addBehaviour(new RecieveFromThCom());
 	    addBehaviour(new MessageFromThComCompany());
 	    addBehaviour(new RecieveBroadCast());
 	    addBehaviour(new RecieveBroadCastFromStudent());
+	    addBehaviour(new StudentChoice());
 	    
-	    
-	    
-		
-		
 		
 	}
 	
@@ -224,9 +221,9 @@ public class Supervisor  extends Agent{
 					 
 					 Random random = new Random(); 
 					 int randomNo = random.nextInt((thesisProposal.size()-1)-0)+0;
-					 System.out.println(" THE SELECTED THESIS IS ..."+thesisProposal.get(randomNo));
-					 System.out.println(" THESIS NAME TO REMOVE FROM LIST ..."+thesisProposal.remove(randomNo));
-					 System.out.println(" REMAINING THESIS PROPOSALS IN LIST ..."+ thesisProposal);
+					System.out.println(" THE SELECTED THESIS IS ..."+thesisProposal.get(randomNo));
+					System.out.println(" THESIS NAME TO REMOVE FROM LIST ..."+thesisProposal.remove(randomNo));
+					System.out.println(" REMAINING THESIS PROPOSALS IN LIST ..."+ thesisProposal);
 					 
 					 
 					 
@@ -270,7 +267,7 @@ public class Supervisor  extends Agent{
 						tostudent.setConversationId("Assign_Thesis");
 						tostudent.setReplyWith("Assign Thesis "+ System.currentTimeMillis());
 						tostudent.setContent("THESIS ASSIGNED, Start Date: 4/5/21 - End Date 10/8/21, THESIS STATUS - ON GOING");
-						send(tostudent);
+					    send(tostudent);
 						
 						
 						ACLMessage toCommt = new ACLMessage(ACLMessage.CONFIRM);
@@ -279,6 +276,8 @@ public class Supervisor  extends Agent{
 						toCommt.setReplyWith("Assign_Thesis_TC"+ System.currentTimeMillis());
 						toCommt.setContent("THESIS ASSIGNED, TO STUDENT");
 						send(toCommt);
+						
+						//System.out.println(toCommt);
 						
 						MessageTemplate	mt = MessageTemplate.and(MessageTemplate.MatchConversationId("Assign_Thesis_TC"), 
 								MessageTemplate.MatchInReplyTo(toCommt.getReplyWith()));
@@ -372,8 +371,45 @@ public class Supervisor  extends Agent{
 		
 	}
 	
-	
+	public class StudentChoice extends CyclicBehaviour {
 
-	
+		@Override
+		public void action() {
+			// TODO Auto-generated method stub
+			
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.PROXY);
+			ACLMessage msg = receive(mt); 
+			boolean accepted = true;
+			
+			if(msg!=null&&msg.getConversationId().equals("Possible-Proposal_1")) {
+				
+				
+				String content = msg.getContent();
+				//System.out.println("Printing from StudentChoice - Supervisor");
+				System.out.println();
+				System.out.println("Message from Student to Supervisor ");
+				System.out.println(content);
+				
+				ACLMessage reply = msg.createReply(); 
+				reply.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
+				reply.addReceiver(new AID ("student", AID.ISLOCALNAME));
+				reply.setContent("THESIS HAS BEEN SELECTED, AM YOUR SUPERVISOR, Start Date: 4/5/21 -"
+						+ " End Date 10/8/21, THESIS STATUS - ON GOING");
+				reply.setConversationId("Student_Thesis_Accepted");
+				send(reply);
+				
+				ACLMessage toCommt = new ACLMessage(ACLMessage.CONFIRM);
+				toCommt.addReceiver(new AID("ThesisCommittee", AID.ISLOCALNAME));                       
+				toCommt.setConversationId("Assign_Thesis_SC");
+				toCommt.setReplyWith("Assign_Thesis_SC"+ System.currentTimeMillis());
+				toCommt.setContent("THESIS ASSIGNED, TO STUDENT");
+				send(toCommt);
+				
+				
+			}
+			
+		}
+		
+	}
 	
 }

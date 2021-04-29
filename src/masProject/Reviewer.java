@@ -41,9 +41,6 @@ public class Reviewer extends Agent {
 		addBehaviour(new RecieveBroadCast());
 		addBehaviour(new RecieveBroadCastFromStudent());
 		
-		
-		 
-		
 	}
 	
 	public class RecieveMessageFromTh extends CyclicBehaviour{

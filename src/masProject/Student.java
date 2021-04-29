@@ -79,7 +79,7 @@ public class Student extends Agent {
 			System.out.println();
 			System.out.println("Its a Student Choice");
 			addBehaviour(new InterestedProposal());
-			addBehaviour(new RecievedMsgSupStuChoice());
+			//addBehaviour(new RecievedMsgSupStuChoice());
 			addBehaviour(new MsgSupStuChoice()); 
 			addBehaviour(new ThRecieveFrThCom());
 		
@@ -91,9 +91,11 @@ public class Student extends Agent {
 			addBehaviour(new YellowPages());
 			break;
 			
-		case "Student":
+		case "ThesisComm":
 			System.out.println();
-			System.out.println("Students communication");
+			System.out.println("Thesis communication");
+			//YellowPagesThCom
+			addBehaviour(new YellowPagesThCom());
 			//addBehaviour(new RecieveBroadCastThCom());
 			break;
 			
@@ -115,7 +117,7 @@ public class Student extends Agent {
 			break;
 		}
 		
-		// Register the book-selling service in the yellow pages
+		// Register student on yellow pages
 				DFAgentDescription dfd = new DFAgentDescription();
 				dfd.setName(getAID());
 				
@@ -132,9 +134,6 @@ public class Student extends Agent {
 					fe.printStackTrace();
 				}
 		
-		
-		
-
 	}
 
 	// Put agent clean-up operations here
@@ -345,26 +344,20 @@ public class Student extends Agent {
 
 		@Override
 		public void action() {
-			int step = 0;
-			switch (step) {
-			case 0:
+		
 				// Send message to supervisor about student based proposal
 					ACLMessage pr = new ACLMessage(ACLMessage.PROXY);
 					pr.addReceiver(new AID("supervisor", AID.ISLOCALNAME));
-					pr.setConversationId("Possible-Proposal");
-					pr.setReplyWith("Inform_ref " + System.currentTimeMillis());
+					pr.setConversationId("Possible-Proposal_1");
+					pr.setReplyWith("Inform_Proposal " + System.currentTimeMillis());
 					pr.setContent("I GOT A POSSIBLE THESIS");
-					
 					send(pr);
-					step = 2;
-	
-					MessageTemplate mtStudentSupp = MessageTemplate.and(MessageTemplate.MatchConversationId("Possible-Proposal"),
-							MessageTemplate.MatchInReplyTo(pr.getReplyWith()));
 					
-				break;
+					MessageTemplate mtStudentSupp = MessageTemplate.and(MessageTemplate.MatchConversationId("Possible-Proposal_1"),
+							MessageTemplate.MatchInReplyTo(pr.getReplyWith()));
 
 			}
-		}
+		
 
 		@Override
 		public boolean done() {
@@ -408,24 +401,21 @@ public class Student extends Agent {
 		 * 
 		 * */
 		public void action() {
-			ACLMessage msg = myAgent.receive(mtStudentCommt);
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL);
+			ACLMessage msg = receive(mt);
 
-			if (msg != null) {
+			if (msg != null&& msg.getConversationId().equals("Student_Thesis_Accepted")) {
                     // Recieve message. 
-				if (msg.getConversationId().equals("Assign_Thesis")) {
 					String msgFrSup = msg.getContent();
 					System.out.println();
 					System.out.println("Reply from Supervisor to Student Wayforward ...");
 					System.out.println(msgFrSup );
-				}
-
-			} else {
-				block();
+			
+			}else {
+				block(); 
 			}
 
-		}
-
-	}
+	} }
 	
 	public class ThRecieveFrThCom extends CyclicBehaviour {
         /*
@@ -661,6 +651,57 @@ public class Student extends Agent {
 					}
 					toall.setReplyWith("BroadCastMessage"+System.currentTimeMillis());
 					toall.setConversationId("Reviewer_BroadCast_id");
+					toall.setContent("Student checking in on you");
+					send(toall);
+					
+				}
+				catch (FIPAException | InterruptedException fe) {
+					fe.printStackTrace();
+				}
+
+			}
+
+			@Override
+			public boolean done() {
+				// TODO Auto-generated method stub
+				return true;
+			}
+		
+	    }
+	 
+	 public class YellowPagesThCom extends Behaviour{
+		 /*
+		  * Sends yellowpage messages to all reviewer agents. 
+		  * */
+	    	private AID[] allAgents;
+	    	
+	    	int stop = 0;
+			@Override
+			public void action() {
+				System.out.println();
+				System.out.println("Found the following agents on yellow pages");
+				System.out.println();
+				DFAgentDescription template = new DFAgentDescription();
+				ServiceDescription sd = new ServiceDescription();
+				sd.setType("ThesisCommt-agent");
+				template.addServices(sd);
+				try {
+					DFAgentDescription[] result = DFService.search(myAgent, template); 
+					Thread.sleep(3000);
+					
+					allAgents= new AID[result.length];
+				stop = 0;
+				//Send a message to all agents in the student agents 
+				   ACLMessage toall = new ACLMessage(ACLMessage.CFP);
+				   
+					for (int i = 0; i < result.length; ++i) {
+						allAgents[i] = result[i].getName();
+						System.out.println(allAgents[i].getName());
+						toall.addReceiver(allAgents[i]);
+						stop = stop+1;
+					}
+					toall.setReplyWith("BroadCastMessage"+System.currentTimeMillis());
+					toall.setConversationId("ThesisCom_BroadCast_id");
 					toall.setContent("Student checking in on you");
 					send(toall);
 					
