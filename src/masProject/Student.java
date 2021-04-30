@@ -671,7 +671,7 @@ public class Student extends Agent {
 	 
 	 public class YellowPagesThCom extends Behaviour{
 		 /*
-		  * Sends yellowpage messages to all reviewer agents. 
+		  * Sends yellowpage messages to all Thesis Committee agents. 
 		  * */
 	    	private AID[] allAgents;
 	    	

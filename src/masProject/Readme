@@ -20,12 +20,12 @@ To run the YellowPages choice use the following
 supervisor:masProject.Supervisor(Supervised_Learning,Software_Requirement_Engineering, A,B,C,D,E);reviewer:masProject.Reviewer;
 thesis:masProject.Thesis" 
 
-To run the Students choice use the following 
--gui "student:masProject.Student(Student);student1:masProject.Student(Student);student2:masProject.Student(Student);
-student3:masProject.Student(Student);student4:masProject.Student(Student);
-ThesisCommittee:masProject.ThesisCommt(James,Ricky,Brice,Jimmy);
-supervisor:masProject.Supervisor(Supervised_Learning,Software_Requirement_Engineering,A,B,C,D,E);
-reviewer:masProject.Reviewer;thesis:masProject.Thesis" 
+To run the ThesisCommittee choice use the following 
+-gui "student:masProject.Student(ThesisComm);ThesisCommittee:masProject.ThesisCommt(James,Ricky,Brice,Jimmy);
+ThesisCommittee1:masProject.ThesisCommt(James,Ricky,Brice,Jimmy);ThesisCommittee2:masProject.ThesisCommt(James,Ricky,Brice,Jimmy);
+ThesisCommittee3:masProject.ThesisCommt(James,Ricky,Brice,Jimmy);ThesisCommittee4:masProject.ThesisCommt(James,Ricky,Brice,Jimmy);
+supervisor:masProject.Supervisor(Supervised_Learning,Software_Requirement_Engineering,A,B,C,D,E);reviewer:masProject.Reviewer;
+thesis:masProject.Thesis" 
 
 To run the Supervisor choice use the following
 -gui
