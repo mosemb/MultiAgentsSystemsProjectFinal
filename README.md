@@ -1,3 +1,5 @@
+This project is for Multi Agent Systems and Specifically showing the the Masters Degree Aquisition Process for the University of Genova. Jade was used in this project which runs on Java.  
+
 To run the StudentChoice use the Supervisor.java or ThesisCommt.java file as the configurations file. The following arguments would surfice
 in the text parameters field. 
 -gui "student:masProject.Student(StudentChoice);
